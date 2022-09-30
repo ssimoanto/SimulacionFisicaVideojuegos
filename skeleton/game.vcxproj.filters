@@ -11,6 +11,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="callbacks.cpp" />
     <ClCompile Include="particle.cpp" />
+    <ClCompile Include="shoot.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core.hpp" />
@@ -23,6 +24,7 @@
     <ClInclude Include="RenderUtils.hpp" />
     <ClInclude Include="callbacks.hpp" />
     <ClInclude Include="particle.h" />
+    <ClInclude Include="shoot.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Render">

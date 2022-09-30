@@ -1,9 +1,14 @@
 #include "particle.h"
 
-Particle::Particle(Vector3 Pos, Vector3 Vel)
+Particle::Particle(Vector3 Pos, Vector3 Vel, Vector3 Ac, double damping)
 {
 	v = Vel;
+	a = Ac;
+	d = damping;
+	mass = 17.0f;
 	pose = physx::PxTransform(Pos.x, Pos.y, Pos.z);
+	
+
 	renderItem = new RenderItem(CreateShape(physx::PxSphereGeometry(1.0)), &pose, { 0,0.5,0.5,0.3 });
 }
 
@@ -14,7 +19,7 @@ void Particle::integrate(double t)
 	// Update position
 	pose.p += v * t;
 	// Update linear  velocity
-	//v += a * t;
+	v += (a*mass) * t;
 	// Impose drag (damping)
-	//v *= powf(damping,  t);}
+	v *= powf(d,  t);
 }
