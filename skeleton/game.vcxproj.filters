@@ -11,7 +11,11 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="callbacks.cpp" />
     <ClCompile Include="particle.cpp" />
-    <ClCompile Include="shoot.cpp" />
+    <ClCompile Include="particleSystem.cpp" />
+    <ClCompile Include="particleGenerator.cpp" />
+    <ClCompile Include="gaussianParticleGenerator.cpp" />
+    <ClCompile Include="uniformParticleGenerator.cpp" />
+    <ClCompile Include="firework.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core.hpp" />
@@ -24,7 +28,11 @@
     <ClInclude Include="RenderUtils.hpp" />
     <ClInclude Include="callbacks.hpp" />
     <ClInclude Include="particle.h" />
-    <ClInclude Include="shoot.h" />
+    <ClInclude Include="particleSystem.h" />
+    <ClInclude Include="particleGenerator.h" />
+    <ClInclude Include="gaussianParticleGenerator.h" />
+    <ClInclude Include="uniformParticleGenerator.h" />
+    <ClInclude Include="firework.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Render">

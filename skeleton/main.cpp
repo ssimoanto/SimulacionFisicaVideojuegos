@@ -8,7 +8,7 @@
 #include "RenderUtils.hpp"
 #include "callbacks.hpp"
 #include "particle.h"
-#include "shoot.h"
+#include "particleSystem.h"
 
 #include <iostream>
 
@@ -31,7 +31,7 @@ PxDefaultCpuDispatcher* gDispatcher = NULL;
 PxScene* gScene = NULL;
 ContactReportCallback gContactReportCallback;
 //Particle* p;
-Shoot* shoot;
+ParticleSystem* particleSystem;
 RenderItem* suelo;
 
 // Initialize physics engine
@@ -59,7 +59,7 @@ void initPhysics(bool interactive)
 	gScene = gPhysics->createScene(sceneDesc);
 
 	suelo = new RenderItem(CreateShape(PxBoxGeometry(500, 1, 500)), new PxTransform(-100, -5, -100), { 1,0,1,0.7 });
-	shoot = new Shoot(GetCamera()->getEye(), 200, PxVec3(0, -9.8, 0), 0.9);
+	particleSystem = new ParticleSystem();
 	// cañon: 17,48 cm, masa 17,6 kg, distancia 3700 m
 	// https://es.wikipedia.org/wiki/Bola_de_ca%C3%B1%C3%B3n
 	// artilleria naval
@@ -77,10 +77,8 @@ void stepPhysics(bool interactive, double t)
 
 	gScene->simulate(t);
 	gScene->fetchResults(true);
-	for (auto e: shoot->vec)
-	{
-		e->integrate(t);
-	}
+
+	particleSystem->update(t);
 }
 
 // Function to clean data
@@ -99,7 +97,7 @@ void cleanupPhysics(bool interactive)
 	transport->release();
 
 	gFoundation->release();
-	delete shoot;
+	delete particleSystem;
 }
 
 // Function called when a key is pressed
@@ -113,11 +111,12 @@ void keyPress(unsigned char key, const PxTransform& camera)
 		//case ' ':	break;
 	case 'X':
 	{
-		shoot->create();
+		particleSystem->create();
 		break;
 	}
-	case ' ':
+	case 'C':
 	{
+		particleSystem->addParticleGen(GAUSSIAN);
 		break;
 	}
 
