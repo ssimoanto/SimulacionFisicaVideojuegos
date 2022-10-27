@@ -23,13 +23,14 @@ protected:
 	double d;
 	float mass;
 public:
+	Particle() {};
 	Particle(ParticleType type, Vector3 _posi, Vector3 _vel);
 	~Particle() {
 		DeregisterRenderItem(renderItem);
 	}
 	void update(double t);
 	virtual Particle* clone() const {
-		Particle* p = new Particle(_type, pose.p,v);
+		Particle* p = new Particle(_type, pose.p, v);
 		return p;
 	}
 	inline Vector3 getPos() { return pose.p; }

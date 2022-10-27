@@ -30,8 +30,16 @@ protected:
 				delete e;
 			}
 			_particles.clear();
+			for (auto e : _firework_pool) {
+				delete e;
+			}
+			_firework_pool.clear();
+			for (auto e : _particle_generators)
+			{
+				_particle_generators.pop_front();
+			}
 		};
-		void addParticleGen(GeneratorName gn);
+		void addParticleGen(/*GeneratorName gn*/);
 		void update(double t);
 		std::shared_ptr<ParticleGenerator> getParticleGenerator(std::string gn);
 		void onParticleDeath(Particle*);

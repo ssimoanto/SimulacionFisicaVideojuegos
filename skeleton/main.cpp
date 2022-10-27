@@ -61,10 +61,10 @@ void initPhysics(bool interactive)
 	suelo = new RenderItem(CreateShape(PxBoxGeometry(500, 1, 500)), new PxTransform(-100, -5, -100), { 1,0,1,0.7 });
 	particleSystem = new ParticleSystem();
 	particleSystem->generateFireworkSystem();
-	particleSystem->addParticleGen(GAUSSIAN);
-	particleSystem->addParticleGen(UNIFORM);
+	particleSystem->addParticleGen();
+	//particleSystem->addParticleGen(UNIFORM);
 	particleSystem->getParticleGenerator("Gaussian")->changeOperative();
-	particleSystem->getParticleGenerator("Uniform")->changeOperative();
+	//particleSystem->getParticleGenerator("Uniform")->changeOperative();
 }
 
 
