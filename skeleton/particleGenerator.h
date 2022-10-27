@@ -23,6 +23,7 @@ public:
 	~ParticleGenerator() {};
 	void setParticle(Particle *model);
 	// = 0 -> virtual puro, hay que sobreescribirlo si o si
-	virtual std::list<Particle*> generateParticles() = 0 {}
+	virtual std::list<Particle*> generateParticles() = 0;
+	inline void setMeanPos(Vector3 p) { _mean_pos = p; }
 
 };

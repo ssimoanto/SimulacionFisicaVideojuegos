@@ -8,7 +8,7 @@
 #include <list>
 #include <vector>
 enum GeneratorName {
-	GAUSSIAN, UNIFORM
+	GAUSSIAN, UNIFORM, FIREWORK, SHOOT_CANYON
 };
 class ParticleSystem {
 protected:
@@ -19,6 +19,8 @@ protected:
 	Particle* particle;
 	ParticleGenerator* _firework_gen;
 	public:
+
+	Firework* _firework = nullptr;
 		ParticleSystem();
 		~ParticleSystem() {
 			
@@ -33,7 +35,7 @@ protected:
 		ParticleGenerator* getParticleGenerator(std::string name);
 		void onParticleDeath(Particle*);
 		void generateFireworkSystem();
-
-		void create();
+		bool isFireworkAlive();
+		//void create();
 		void shootFirework(int type);
 };

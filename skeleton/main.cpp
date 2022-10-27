@@ -60,11 +60,6 @@ void initPhysics(bool interactive)
 
 	suelo = new RenderItem(CreateShape(PxBoxGeometry(500, 1, 500)), new PxTransform(-100, -5, -100), { 1,0,1,0.7 });
 	particleSystem = new ParticleSystem();
-	// cañon: 17,48 cm, masa 17,6 kg, distancia 3700 m
-	// https://es.wikipedia.org/wiki/Bola_de_ca%C3%B1%C3%B3n
-	// artilleria naval
-	// hacer un vector de particulas para poder dispararlas
-	// luego habra que hacer delete de cada elemento pq son punteros
 }
 
 
@@ -110,16 +105,14 @@ void keyPress(unsigned char key, const PxTransform& camera)
 		//case 'B': break;
 		//case ' ':	break;
 	case 'X':
-	{
-		particleSystem->create();
+		//particleSystem->create();
 		break;
-	}
 	case 'C':
-	{
 		particleSystem->addParticleGen(GAUSSIAN);
 		break;
-	}
-
+	case 'V':
+		particleSystem->addParticleGen(FIREWORK);
+		break;
 	default:
 		break;
 	}
