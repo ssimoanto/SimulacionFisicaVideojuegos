@@ -35,7 +35,8 @@ public:
 	inline Vector3 getPos() { return pose.p; }
 	inline Vector3 getVel() { return v; }
 	inline void setVelocity(Vector3 vel) { v = vel; }
-	inline void setPosition(Vector3 pos){ pose = physx::(pos.x, pos.y,pos.z); }
+	inline void setPosition(Vector3 pos){ pose = physx::PxTransform(pos.x, pos.y,pos.z); }
 	inline void setTime(double time) { _remaining_time = time; }
 	inline bool particleExists() { return exists; }
+	inline void setMass(float m) { mass = m; }
 };

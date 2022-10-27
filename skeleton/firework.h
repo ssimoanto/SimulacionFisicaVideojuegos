@@ -17,10 +17,15 @@ public:
 	~Firework() {};
 	void update(double t);
 	Firework* clone() const override {
-		Particle* p = new Particle(FIREWORKS, { 0,50,0 }, { 0,10,27 });
+		Firework* p = new Firework(pose.p, v);
+		p->setTime(_remaining_time);
+		for (auto g : _gens) p->addGenerator(g);
 		return p;
 	}
 	std::list<Particle*> explode();
 	inline void addGenerator(std::shared_ptr<ParticleGenerator> g) { _gens.push_back(g); }
-
+	void deleteGenerators() {
+		while (!_gens.empty())
+			_gens.pop_front();
+	}
 };

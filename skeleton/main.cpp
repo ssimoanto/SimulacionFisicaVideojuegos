@@ -60,6 +60,7 @@ void initPhysics(bool interactive)
 
 	suelo = new RenderItem(CreateShape(PxBoxGeometry(500, 1, 500)), new PxTransform(-100, -5, -100), { 1,0,1,0.7 });
 	particleSystem = new ParticleSystem();
+	particleSystem->generateFireworkSystem();
 }
 
 
@@ -111,7 +112,7 @@ void keyPress(unsigned char key, const PxTransform& camera)
 		particleSystem->addParticleGen(GAUSSIAN);
 		break;
 	case 'V':
-		particleSystem->addParticleGen(FIREWORK);
+		particleSystem->shootFirework(0);
 		break;
 	default:
 		break;

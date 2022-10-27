@@ -13,7 +13,7 @@ enum GeneratorName {
 class ParticleSystem {
 protected:
 	std::list<Particle*> _particles;
-	std::list<ParticleGenerator*> _particle_generators;
+	std::list<std::shared_ptr<ParticleGenerator>>_particle_generators;
 	std::vector<Firework*> _firework_pool;
 
 	Particle* particle;

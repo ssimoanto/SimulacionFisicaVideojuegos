@@ -7,7 +7,7 @@ Particle::Particle(ParticleType type, Vector3 _posi, Vector3 _vel)
 	switch (_type) {
 	case FIREWORKS:
 		a = physx::PxVec3(0, -10.0, 0);
-		mass = 5.0f;
+		mass = 1.0f;
 		pose = physx::PxTransform(_posi);
 		v = _vel;
 		break;
@@ -38,8 +38,8 @@ Particle::Particle(ParticleType type, Vector3 _posi, Vector3 _vel)
 		break;
 	}
 	d = 0.99;
+	exists = true;
 	renderItem = new RenderItem(CreateShape(physx::PxSphereGeometry(1)), &pose, { 0,0.5,0.5,1 });
-	RegisterRenderItem(renderItem);
 }
 
 void Particle::update(double t)
