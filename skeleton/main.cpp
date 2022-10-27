@@ -62,7 +62,9 @@ void initPhysics(bool interactive)
 	particleSystem = new ParticleSystem();
 	particleSystem->generateFireworkSystem();
 	particleSystem->addParticleGen(GAUSSIAN);
+	particleSystem->addParticleGen(UNIFORM);
 	particleSystem->getParticleGenerator("Gaussian")->changeOperative();
+	particleSystem->getParticleGenerator("Uniform")->changeOperative();
 }
 
 
@@ -109,6 +111,7 @@ void keyPress(unsigned char key, const PxTransform& camera)
 		//case ' ':	break;
 	case 'X':
 		//particleSystem->create();
+		particleSystem->getParticleGenerator("Uniform")->changeOperative();
 		break;
 	case 'C':
 		particleSystem->getParticleGenerator("Gaussian")->changeOperative();

@@ -1,5 +1,6 @@
 #include "particleSystem.h"
 #include "gaussianParticleGenerator.h"
+#include "uniformParticleGenerator.h"
 
 ParticleSystem::ParticleSystem()
 {
@@ -14,6 +15,7 @@ void ParticleSystem::addParticleGen(GeneratorName gn)
 		_particle_generators.push_back(std::shared_ptr<ParticleGenerator>(new GaussianParticleGenerator("Gaussian",{ 0, 50, 0 }, {0,10,27}, {1,1,2.5}, {1,1,1}, 1, GAUSSIAN_BALL)));
 		break;
 	case UNIFORM:
+		_particle_generators.push_back(std::shared_ptr<ParticleGenerator>(new UniformParticleGenerator("Uniform", { 0, 50, 0 }, { 0,10,27 }, { 1,1,2.5 }, { 1,1,1 }, 1, GAUSSIAN_BALL)));
 		break;
 	case FIREWORK:
 		_firework = new Firework({ 0,50,0 }, { 0,10,27 });
@@ -47,6 +49,7 @@ void ParticleSystem::update(double t)
 			it = _particles.erase(it);
 		}
 	}
+
 }
 
 std::shared_ptr<ParticleGenerator> ParticleSystem::getParticleGenerator(std::string gn)
@@ -61,6 +64,7 @@ std::shared_ptr<ParticleGenerator> ParticleSystem::getParticleGenerator(std::str
 void ParticleSystem::onParticleDeath(Particle* p)
 {
 	Firework* fk = dynamic_cast<Firework*>(p);
+
 	if (fk != nullptr) {
 		auto part = fk->explode();
 		for (auto p : part)
@@ -78,6 +82,15 @@ void ParticleSystem::generateFireworkSystem()
 	_firework_pool.push_back(f);
 	gF->changeOperative();
 	_particle_generators.push_back(gF);
+	//
+	//std::shared_ptr<ParticleGenerator>gF(new GaussianParticleGenerator("Firework", { 0, 0, 0 }, { 0,20,0 }, { 0,0,0 }, { 10,10,10 }, 4, FIREWORKS));
+	/*f = new Firework(Vector3(1000000000, 0, 0), Vector3(0, 60, 0));
+	f->addGenerator(gF);
+	f->setTime(1.5);
+	_firework_pool.push_back(f);
+	gF->changeOperative();
+	_particle_generators.push_back(gF);*/
+
 }
 
 bool ParticleSystem::isFireworkAlive()
