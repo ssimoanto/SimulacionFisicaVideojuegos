@@ -11,7 +11,7 @@ void ParticleSystem::addParticleGen(GeneratorName gn)
 	switch (gn)
 	{
 	case GAUSSIAN:
-		_particle_generators.push_back(std::shared_ptr<ParticleGenerator>(new GaussianParticleGenerator({ 0,50,0 }, { 0,10,27 }, { 1,1,2.5 }, { 1,1,1 }, 1, GAUSSIAN_BALL)));
+		_particle_generators.push_back(std::shared_ptr<ParticleGenerator>(new GaussianParticleGenerator("Gaussian",{ 0, 50, 0 }, {0,10,27}, {1,1,2.5}, {1,1,1}, 1, GAUSSIAN_BALL)));
 		break;
 	case UNIFORM:
 		break;
@@ -33,12 +33,8 @@ void ParticleSystem::update(double t)
 				_particles.push_back(partic);
 			}
 		}
-
 	}
-	//act particulass
-	//for (auto p : _particles) p->update(t);
-
-	//borrar particulas
+	//act particulas
 	auto it = _particles.begin();
 	while (it != _particles.end()) {
 		if ((*it)->particleExists()) {
@@ -53,9 +49,13 @@ void ParticleSystem::update(double t)
 	}
 }
 
-ParticleGenerator* ParticleSystem::getParticleGenerator(std::string name)
+std::shared_ptr<ParticleGenerator> ParticleSystem::getParticleGenerator(std::string gn)
 {
-	return _firework_gen;
+	for (auto e : _particle_generators)
+	{
+		if ((*e).getGeneratorName() == gn) return e;
+	}
+	return nullptr;
 }
 
 void ParticleSystem::onParticleDeath(Particle* p)
@@ -71,7 +71,7 @@ void ParticleSystem::onParticleDeath(Particle* p)
 
 void ParticleSystem::generateFireworkSystem()
 {
-	std::shared_ptr<ParticleGenerator>gF(new GaussianParticleGenerator({ 0,0,0 }, { 0,20,0 }, { 0,0,0 }, { 10,10,10 }, 4, FIREWORKS));
+	std::shared_ptr<ParticleGenerator>gF(new GaussianParticleGenerator("Firework",{ 0, 0, 0 }, {0,20,0}, {0,0,0}, {10,10,10}, 4, FIREWORKS));
 	auto f = new Firework(Vector3(1000000000, 0, 0), Vector3(0, 60, 0));
 	f->addGenerator(gF);
 	f->setTime(1.5);

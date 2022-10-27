@@ -9,6 +9,7 @@
 
 class UniformParticleGenerator : ParticleGenerator {
 private:
+	std::string name = "Uniform";
 	Vector3 _pos_width;
 	Vector3 _vel_width;
 

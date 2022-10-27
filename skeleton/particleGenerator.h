@@ -8,7 +8,7 @@
 
 class ParticleGenerator {
 protected:
-	std::string _name;
+	std::string name;
 
 	Vector3 _mean_pos;
 	Vector3 _mean_vel;
@@ -24,6 +24,7 @@ public:
 	ParticleGenerator(std::string _name,Vector3 _posi,Vector3 _vel);
 	~ParticleGenerator() {};
 	void setParticle(Particle *model);
+	virtual std::string getGeneratorName();
 	// = 0 -> virtual puro, hay que sobreescribirlo si o si
 	virtual std::list<Particle*> generateParticles() = 0;
 	inline void setMeanPos(Vector3 p) { _mean_pos = p; }

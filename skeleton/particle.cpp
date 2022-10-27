@@ -7,7 +7,7 @@ Particle::Particle(ParticleType type, Vector3 _posi, Vector3 _vel)
 	switch (_type) {
 	case FIREWORKS:
 		a = physx::PxVec3(0, -10.0, 0);
-		mass = 1.0f;
+		mass = 2.5f;
 		pose = physx::PxTransform(_posi);
 		v = _vel;
 		break;

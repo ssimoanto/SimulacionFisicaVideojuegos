@@ -61,6 +61,8 @@ void initPhysics(bool interactive)
 	suelo = new RenderItem(CreateShape(PxBoxGeometry(500, 1, 500)), new PxTransform(-100, -5, -100), { 1,0,1,0.7 });
 	particleSystem = new ParticleSystem();
 	particleSystem->generateFireworkSystem();
+	particleSystem->addParticleGen(GAUSSIAN);
+	particleSystem->getParticleGenerator("Gaussian")->changeOperative();
 }
 
 
@@ -109,7 +111,7 @@ void keyPress(unsigned char key, const PxTransform& camera)
 		//particleSystem->create();
 		break;
 	case 'C':
-		particleSystem->addParticleGen(GAUSSIAN);
+		particleSystem->getParticleGenerator("Gaussian")->changeOperative();
 		break;
 	case 'V':
 		particleSystem->shootFirework(0);

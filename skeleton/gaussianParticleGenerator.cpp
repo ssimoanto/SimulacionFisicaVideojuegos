@@ -1,9 +1,10 @@
 #include "gaussianParticleGenerator.h"
 
 // posicion, velocidad, desviacion de pos y vel, numero de particulas por frame
-GaussianParticleGenerator::GaussianParticleGenerator(Vector3 _posi, Vector3 _vel,
-	Vector3 d_posi, Vector3 d_vel,int _num,ParticleType t):  ParticleGenerator("GaussGen",_posi,_vel)
+GaussianParticleGenerator::GaussianParticleGenerator(std::string _name, Vector3 _posi, Vector3 _vel,
+	Vector3 d_posi, Vector3 d_vel,int _num,ParticleType t):  ParticleGenerator(_name,_posi,_vel)
 {
+	name = _name;
 	_operative = true;
 	_mean_pos = _posi;
 	_mean_vel = _vel;
@@ -14,7 +15,6 @@ GaussianParticleGenerator::GaussianParticleGenerator(Vector3 _posi, Vector3 _vel
 
 	_model = new Particle(t,_mean_pos,_mean_vel);
 }
-
 std::list<Particle*> GaussianParticleGenerator::generateParticles()
 {
 	std::list<Particle*> lista;

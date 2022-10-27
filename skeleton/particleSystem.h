@@ -21,6 +21,7 @@ protected:
 	public:
 
 	Firework* _firework = nullptr;
+	bool isOn = false;
 		ParticleSystem();
 		~ParticleSystem() {
 			
@@ -32,7 +33,7 @@ protected:
 		};
 		void addParticleGen(GeneratorName gn);
 		void update(double t);
-		ParticleGenerator* getParticleGenerator(std::string name);
+		std::shared_ptr<ParticleGenerator> getParticleGenerator(std::string gn);
 		void onParticleDeath(Particle*);
 		void generateFireworkSystem();
 		bool isFireworkAlive();
