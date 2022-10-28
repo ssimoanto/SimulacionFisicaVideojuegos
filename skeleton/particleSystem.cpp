@@ -10,7 +10,7 @@ ParticleSystem::ParticleSystem()
 void ParticleSystem::addParticleGen(/*GeneratorName gn*/)
 {
 	_particle_generators.push_back(std::shared_ptr<ParticleGenerator>(new GaussianParticleGenerator("Gaussian", { 0, 50, 0 }, { 0,10,27 }, { 1,1,2.5 }, { 1,1,1 }, 1, GAUSSIAN_BALL)));
-	_particle_generators.push_back(std::shared_ptr<ParticleGenerator>(new UniformParticleGenerator({ 0, 50, 0 }, { 0,10,27 })));
+	_particle_generators.push_back(std::shared_ptr<ParticleGenerator>(new UniformParticleGenerator({ 0, 50, 0 }, { 0, 0, 0 })));
 	//_particle_generators.push_back(std::shared_ptr<ParticleGenerator>(new UniformParticleGenerator("Uniform", { 0, 50, 0 }, { 0,10,27 }, 12, GAUSSIAN_BALL)));
 	/*switch (gn)
 	{

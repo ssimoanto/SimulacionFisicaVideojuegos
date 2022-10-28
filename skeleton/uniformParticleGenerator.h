@@ -16,7 +16,7 @@ protected:
 	
 	std::random_device randi;
 	std::default_random_engine d;
-	std::uniform_real_distribution<double> uni{ -1, 1 };
+	std::uniform_real_distribution<double> uni{ 0, 0.1 };
 
 public:
 	UniformParticleGenerator(Vector3 _posi, Vector3 _vel);
