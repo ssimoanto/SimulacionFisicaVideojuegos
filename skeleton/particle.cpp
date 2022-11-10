@@ -8,6 +8,7 @@ Particle::Particle(ParticleType type, Vector3 _posi, Vector3 _vel)
 	case FIREWORKS:
 		a = physx::PxVec3(0, -10.0, 0);
 		mass = 2.5f;
+		inv_mass = 1 / mass;
 		pose = physx::PxTransform(_posi);
 		v = _vel;
 		break;
@@ -16,6 +17,7 @@ Particle::Particle(ParticleType type, Vector3 _posi, Vector3 _vel)
 		a = physx::PxVec3(0, -9.8, 0);
 		pose = physx::PxTransform(GetCamera()->getEye().x, GetCamera()->getEye().y, GetCamera()->getEye().z);
 		mass = 17.0f;
+		inv_mass = 1 / mass;
 		break;
 
 		// cañon: 17,48 cm, masa 17,6 kg, distancia 3700 m
@@ -28,11 +30,13 @@ Particle::Particle(ParticleType type, Vector3 _posi, Vector3 _vel)
 		a = physx::PxVec3(0, -9.8, 0);
 		pose = physx::PxTransform(GetCamera()->getEye().x, GetCamera()->getEye().y, GetCamera()->getEye().z);
 		mass = 10.0f;
+		inv_mass = 1 / mass;
 		break;
 
 	case GAUSSIAN_BALL:
 		a = physx::PxVec3(0, -10.0, 0);
 		mass = 10.0f;
+		inv_mass = 1 / mass;
 		pose = physx::PxTransform(_posi);
 		v = _vel;
 		break;
@@ -44,12 +48,19 @@ Particle::Particle(ParticleType type, Vector3 _posi, Vector3 _vel)
 
 void Particle::update(double t)
 {
+	// Trivial case, infinite mass --> do nothing
+	if (inv_mass<= 0.0f) return;
 	// Update position
 	pose.p += v * t;
 	// Update linear  velocity
 	v += (a * mass) * t;
 	// Impose drag (damping)
-	v *= powf(d, t);
+	//v *= powf(d, t);
+
+	Vector3 totalAcceleration = a; totalAcceleration += force * inv_mass;
+
+	v += totalAcceleration * t;// Impose drag (damping)
+	v *= powf(d, t);clearForce();
 
 	if (_remaining_time <= 0) exists = false;
 	else _remaining_time -= t;

@@ -64,7 +64,7 @@ void initPhysics(bool interactive)
 	particleSystem->addParticleGen();
 	//particleSystem->addParticleGen(UNIFORM);
 	particleSystem->getParticleGenerator("Gaussian")->changeOperative();
-	//particleSystem->getParticleGenerator("Uniform")->changeOperative();
+	particleSystem->getParticleGenerator("Uniform")->changeOperative();
 }
 
 

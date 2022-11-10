@@ -22,6 +22,7 @@ protected:
 
 	double d;
 	float mass;
+	float inv_mass;
 public:
 	Particle() {};
 	Particle(ParticleType type, Vector3 _posi, Vector3 _vel);
@@ -39,5 +40,12 @@ public:
 	inline void setPosition(Vector3 pos){ pose = physx::PxTransform(pos.x, pos.y,pos.z); }
 	inline void setTime(double time) { _remaining_time = time; }
 	inline bool particleExists() { return exists; }
-	inline void setMass(float m) { mass = m; }
+	inline void setMass(float m) { mass = m; inv_mass = 1 / m; }
+	inline float getInv() { return inv_mass; }
+	inline float getMass() { return mass; }
+	// Accumulated force
+	Vector3 force;// Clears accumulated force
+	void clearForce(){ force *= 0; }// Add force to apply in next integration only
+	void addForce(const Vector3& f) { force += f; }
+	
 };
