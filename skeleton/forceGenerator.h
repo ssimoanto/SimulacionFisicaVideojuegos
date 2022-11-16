@@ -80,3 +80,29 @@ public:
 	}
 
 };
+class WhirlwindOfChangeForceGenerator : public WindOfChangeForceGenerator {
+protected:
+	float k;
+	Vector3 whirlPosi;
+public:
+	WhirlwindOfChangeForceGenerator();
+	WhirlwindOfChangeForceGenerator(const float _k, Vector3 p, Vector3 v) : WindOfChangeForceGenerator(v, _k, 0) {
+		k = _k;
+		whirlPosi = p;
+	}
+	void updateForce(Particle* particle, double t) override {
+		if (fabs(particle->getInv()) < 1e-10) return;
+
+		auto posi = particle->getPos();
+		f = { k * (-(posi.z - whirlPosi.z)),k * (75 - (posi.y - whirlPosi.y)),k * (posi.x - whirlPosi.x) };
+
+		Vector3 v = -f+particle->getVel();
+		float drag_coef = v.normalize();
+		Vector3 dragF;
+		drag_coef = _k1 * drag_coef + _k2 * drag_coef * drag_coef;
+		dragF = -v * drag_coef;
+		
+		particle->addForce(dragF);
+
+	}
+};

@@ -7,7 +7,9 @@ ParticleSystem::ParticleSystem()
 	pFR = new ParticleForceRegistry();
 	gravGen = new GravityForceGenerator({ 0,-9.8,0 });
 	windGen = new WindOfChangeForceGenerator({ 7,0,0 }, 0.55, 0);
-	windGen->isOn = true;
+	//windGen->isOn = true;
+	whirl = new WhirlwindOfChangeForceGenerator(7, { 0,0,0 }, { 6,2,0 });
+	whirl->isOn = true;
 }
 
 void ParticleSystem::addParticleGen(/*GeneratorName gn*/)
@@ -49,6 +51,8 @@ void ParticleSystem::update(double t)
 			(*it)->update(t);
 			if (gravGen->isOn) pFR->addRegistry(gravGen, *it);
 			if (windGen->isOn) pFR->addRegistry(windGen, *it);
+			if (whirl->isOn) pFR->addRegistry(whirl, *it);
+
 			++it;
 		}
 		else {

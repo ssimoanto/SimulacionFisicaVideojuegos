@@ -22,6 +22,7 @@ protected:
 	ParticleGenerator* _firework_gen;
 	GravityForceGenerator* gravGen;
 	WindOfChangeForceGenerator* windGen;
+	WhirlwindOfChangeForceGenerator* whirl;
 	ParticleForceRegistry* pFR;
 	public:
 
