@@ -119,6 +119,9 @@ void keyPress(unsigned char key, const PxTransform& camera)
 	case 'V':
 		particleSystem->shootFirework(0);
 		break;
+	case 'G':
+		particleSystem->activeGrav();
+		break;
 	default:
 		break;
 	}

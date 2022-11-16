@@ -11,7 +11,7 @@
 class Firework : public Particle {
 private:
 	std::list<std::shared_ptr <ParticleGenerator>> _gens;
-
+	Vector3 poss;
 public:
 	Firework(Vector3 _posi, Vector3 _vel);
 	~Firework() {};

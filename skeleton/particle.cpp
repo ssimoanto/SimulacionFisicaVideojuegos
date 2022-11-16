@@ -44,6 +44,7 @@ Particle::Particle(ParticleType type, Vector3 _posi, Vector3 _vel)
 	d = 0.99;
 	exists = true;
 	renderItem = new RenderItem(CreateShape(physx::PxSphereGeometry(1)), &pose, { 0,0.5,0.5,1 });
+	clearForce();
 }
 
 void Particle::update(double t)

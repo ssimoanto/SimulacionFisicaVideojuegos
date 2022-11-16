@@ -7,6 +7,8 @@
 #include "particleGenerator.h"
 #include <list>
 #include <vector>
+#include "forceGenerator.h"
+#include "particleForceRegistry.h"
 enum GeneratorName {
 	GAUSSIAN, UNIFORM, FIREWORK, SHOOT_CANYON
 };
@@ -18,6 +20,8 @@ protected:
 
 	Particle* particle;
 	ParticleGenerator* _firework_gen;
+	GravityForceGenerator* gravGen;
+	ParticleForceRegistry* pFR;
 	public:
 
 	Firework* _firework = nullptr;
@@ -47,4 +51,5 @@ protected:
 		bool isFireworkAlive();
 		//void create();
 		void shootFirework(int type);
+		void activeGrav() { gravGen->isOn = true; }
 };

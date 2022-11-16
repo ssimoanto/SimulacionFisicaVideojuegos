@@ -14,6 +14,8 @@ protected:
 	std::string name;
 	Vector3 std_dev_pos;
 	Vector3 std_dev_vel;
+	Vector3 posAux;
+
 	normal_distribution<double>normal{ 0,1 };
 	double std_dev_t;
 	std::random_device randi;

@@ -2,7 +2,7 @@
 
 Firework::Firework(Vector3 _posi, Vector3 _vel) : Particle(FIREWORKS, _posi, _vel)
 {
-	
+	poss = _posi;
 }
 
 std::list<Particle*> Firework::explode()

@@ -12,11 +12,12 @@ public:
 	virtual void updateForce(Particle* particle, double duration) = 0;
 	std::string _name;
 	double t = -1e10;
+	bool isOn = false;
 
 };
 class GravityForceGenerator : public ForceGenerator {
 public:
-	GravityForceGenerator(const Vector3& g);
+	GravityForceGenerator(const Vector3& g) { _gravity = g; }
 	virtual void updateForce(Particle* p, double t) {
 		if (fabs(p->getInv()) < 1e-10) return;
 		p->addForce(_gravity * p->getMass());

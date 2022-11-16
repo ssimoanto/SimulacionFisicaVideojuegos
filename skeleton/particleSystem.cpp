@@ -4,7 +4,8 @@
 
 ParticleSystem::ParticleSystem()
 {
-	
+	pFR = new ParticleForceRegistry();
+	gravGen = new GravityForceGenerator({ 0,-9.8,0 });
 }
 
 void ParticleSystem::addParticleGen(/*GeneratorName gn*/)
@@ -29,6 +30,7 @@ void ParticleSystem::addParticleGen(/*GeneratorName gn*/)
 
 void ParticleSystem::update(double t)
 {
+	pFR->updateForce(t);
 	//act generadores
 	for (auto gen : _particle_generators) {
 		if (gen->isOperative()) {
@@ -43,6 +45,7 @@ void ParticleSystem::update(double t)
 	while (it != _particles.end()) {
 		if ((*it)->particleExists()) {
 			(*it)->update(t);
+			if (gravGen->isOn) pFR->addRegistry(gravGen, *it);
 			++it;
 		}
 		else {

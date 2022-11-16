@@ -13,6 +13,7 @@ protected:
 	std::string name;
 	Vector3 _pos_width;
 	Vector3 _vel_width;
+	Vector3 posAux;
 	
 	std::random_device randi;
 	std::default_random_engine d;
