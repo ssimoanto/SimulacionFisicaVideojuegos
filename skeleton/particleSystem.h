@@ -21,6 +21,7 @@ protected:
 	Particle* particle;
 	ParticleGenerator* _firework_gen;
 	GravityForceGenerator* gravGen;
+	WindOfChangeForceGenerator* windGen;
 	ParticleForceRegistry* pFR;
 	public:
 
@@ -42,6 +43,8 @@ protected:
 			{
 				_particle_generators.pop_front();
 			}
+			delete gravGen;
+			delete windGen;
 		};
 		void addParticleGen(/*GeneratorName gn*/);
 		void update(double t);

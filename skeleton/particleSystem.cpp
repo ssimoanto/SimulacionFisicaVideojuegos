@@ -6,6 +6,8 @@ ParticleSystem::ParticleSystem()
 {
 	pFR = new ParticleForceRegistry();
 	gravGen = new GravityForceGenerator({ 0,-9.8,0 });
+	windGen = new WindOfChangeForceGenerator({ 7,0,0 }, 0.55, 0);
+	windGen->isOn = true;
 }
 
 void ParticleSystem::addParticleGen(/*GeneratorName gn*/)
@@ -46,10 +48,13 @@ void ParticleSystem::update(double t)
 		if ((*it)->particleExists()) {
 			(*it)->update(t);
 			if (gravGen->isOn) pFR->addRegistry(gravGen, *it);
+			if (windGen->isOn) pFR->addRegistry(windGen, *it);
 			++it;
 		}
 		else {
+			pFR->deleteParticleRegistry(*it);
 			onParticleDeath(*it);
+			
 			delete* it;
 			it = _particles.erase(it);
 		}

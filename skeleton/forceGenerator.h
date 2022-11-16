@@ -33,7 +33,10 @@ protected:
 class ParticleDragGenerator : public ForceGenerator {
 public:
 	ParticleDragGenerator();
-	ParticleDragGenerator(const float k1, const float k2);
+	ParticleDragGenerator(const float k1, const float k2) {
+		_k1 = k1;
+		_k2 = k2;
+	}
 
 	virtual void updateForce(Particle* particle, double t) {
 		if (fabs(particle->getInv()) < 1e-10) return;
@@ -56,4 +59,24 @@ public:
 protected:
 	float _k1;
 	float _k2;
+};
+class WindOfChangeForceGenerator : public ParticleDragGenerator {
+public:
+	WindOfChangeForceGenerator(Vector3 fuerzaViento, const float k1, const float k2) : ParticleDragGenerator(k1, k2) {
+		f = fuerzaViento;
+	}
+	Vector3 f;
+	void updateForce(Particle* particle, double t) override {
+		if (fabs(particle->getInv()) < 1e-10) return;
+		//compute drag force
+		Vector3 v = particle->getVel()+f;
+		float drag_coef = v.normalize();
+		Vector3 dragF;
+		drag_coef = _k1 * drag_coef + _k2 * drag_coef * drag_coef;
+		dragF = -v * drag_coef;
+		//Apply drag force
+		//std::cout << dragF.x << "/t" << dragF.y << "/t" << dragF.z << "/t" << std::endl;
+		particle->addForce(dragF);
+	}
+
 };
