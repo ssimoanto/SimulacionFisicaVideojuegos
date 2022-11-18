@@ -11,13 +11,13 @@ ParticleSystem::ParticleSystem()
 	whirl = new WhirlwindOfChangeForceGenerator(7, { 0,0,0 }, { 6,2,0 });
 	//whirl->isOn = true;
 
-	boom = new ExplosionBoomForceGenerator(8000, 550, { 0,0,0 }, 2);
+	boom = new ExplosionBoomForceGenerator(20000, 5000, { 0,0,0 }, 2);
 	//boom->isOn = true;
 }
 
 void ParticleSystem::addParticleGen(/*GeneratorName gn*/)
 {
-	_particle_generators.push_back(std::shared_ptr<ParticleGenerator>(new GaussianParticleGenerator("Gaussian", { 0, 0, 0 }, { -16,150,-27 }, { 1,1,2.5 }, { 1,1,1 }, 1, GAUSSIAN_BALL)));
+	_particle_generators.push_back(std::shared_ptr<ParticleGenerator>(new GaussianParticleGenerator("Gaussian", { 0, 0, 0 }, { -16,150,-27 }, { 15,1,15 }, { 1,1,1 }, 1, GAUSSIAN_BALL)));
 	_particle_generators.push_back(std::shared_ptr<ParticleGenerator>(new UniformParticleGenerator({ 0, 0, 0 }, { 0, 0, -100 })));
 	//_particle_generators.push_back(std::shared_ptr<ParticleGenerator>(new UniformParticleGenerator("Uniform", { 0, 50, 0 }, { 0,10,27 }, 12, GAUSSIAN_BALL)));
 	/*switch (gn)

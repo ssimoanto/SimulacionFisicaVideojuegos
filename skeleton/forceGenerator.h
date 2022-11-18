@@ -78,12 +78,14 @@ public:
 		//std::cout << dragF.x << "/t" << dragF.y << "/t" << dragF.z << "/t" << std::endl;
 		particle->addForce(dragF);
 	}
+	void changeWind() { isOn = !isOn; }
 
 };
 class WhirlwindOfChangeForceGenerator : public WindOfChangeForceGenerator {
 protected:
 	float k;
 	Vector3 whirlPosi;
+
 public:
 	WhirlwindOfChangeForceGenerator();
 	WhirlwindOfChangeForceGenerator(const float _k, Vector3 p, Vector3 v) : WindOfChangeForceGenerator(v, _k, 0) {
@@ -105,6 +107,7 @@ public:
 		particle->addForce(dragF);
 
 	}
+	void changeWhirl() { isOn = !isOn; }
 };
 class ExplosionBoomForceGenerator : public ForceGenerator {
 protected:
@@ -131,7 +134,7 @@ public:
 	void updateForce(Particle* particle, double t) override {
 		if (fabs(particle->getInv()) < 1e-10) return;
 		auto newT = GetLastTime() - tiempo;
-		if (tiempo <= mu)R += 343 * tiempo;
+		if (tiempo <= mu)R += 1000 * tiempo;
 		auto particlePos = particle->getPos();
 
 		r = sqrt(pow((particlePos.x - pos.x), 2) + pow((particlePos.y - pos.y), 2) + pow((particlePos.z - pos.z), 2));

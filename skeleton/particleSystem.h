@@ -20,12 +20,13 @@ protected:
 
 	Particle* particle;
 	ParticleGenerator* _firework_gen;
+	
+	ParticleForceRegistry* pFR;
+public:
 	GravityForceGenerator* gravGen;
 	WindOfChangeForceGenerator* windGen;
 	WhirlwindOfChangeForceGenerator* whirl;
 	ExplosionBoomForceGenerator* boom;
-	ParticleForceRegistry* pFR;
-public:
 
 	Firework* _firework = nullptr;
 	bool isOn = false;
@@ -56,7 +57,7 @@ public:
 	bool isFireworkAlive();
 	//void create();
 	void shootFirework(int type);
-	void activeGrav() { gravGen->isOn = true; }
+	void activeGrav() { gravGen->isOn = !gravGen->isOn; }
 	void boomNow() {
 		for (auto p : _particles) {
 			boom->tiempo = GetLastTime();
