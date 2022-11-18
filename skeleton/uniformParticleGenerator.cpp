@@ -6,10 +6,10 @@ UniformParticleGenerator::UniformParticleGenerator(Vector3 _posi, Vector3 _vel) 
 	_operative = true;
 	_pos_width = _posi;
 	_vel_width = _vel;
-	_num_particles = 7;
+	_num_particles = 1;
 	d = std::default_random_engine(randi());
 	_model = new Particle(GAUSSIAN_BALL, _pos_width, _vel_width);
-	_model->setVelocity({ 0,0,27 });
+	_model->setVelocity({ -20,100,20 });
 	posAux = _model->getPos();
 	_model->setPosition({ 3877483748737483,0,0 });
 }
