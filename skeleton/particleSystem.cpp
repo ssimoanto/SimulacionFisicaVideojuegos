@@ -11,7 +11,7 @@ ParticleSystem::ParticleSystem()
 	whirl = new WhirlwindOfChangeForceGenerator(7, { 0,0,0 }, { 6,2,0 });
 	//whirl->isOn = true;
 
-	boom = new ExplosionBoomForceGenerator(20000, 5000, { 0,0,0 }, 2);
+	boom = new ExplosionBoomForceGenerator(200, 5, { 0,0,0 }, 2);
 	//boom->isOn = true;
 }
 

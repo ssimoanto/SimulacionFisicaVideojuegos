@@ -71,8 +71,9 @@ public:
 		//compute drag force
 		Vector3 v = particle->getVel() + f;
 		float drag_coef = v.normalize();
+		float absdrag = abs(drag_coef);
 		Vector3 dragF;
-		drag_coef = _k1 * drag_coef + _k2 * drag_coef * drag_coef;
+		drag_coef = _k1 * drag_coef + _k2 * absdrag * drag_coef;
 		dragF = -v * drag_coef;
 		//Apply drag force
 		//std::cout << dragF.x << "/t" << dragF.y << "/t" << dragF.z << "/t" << std::endl;
@@ -125,8 +126,8 @@ public:
 
 	ExplosionBoomForceGenerator();
 	ExplosionBoomForceGenerator(float kConst, double radius, Vector3 posi, float _dur) {
-		k = kConst;
-		R = radius;
+		k = kConst*1000;
+		R = radius*1000;
 		pos = posi;
 		tiempo = _dur;
 		fuerzi = { 0,0,0 };
