@@ -190,11 +190,11 @@ void ParticleSystem::slinky()
 
 void ParticleSystem::buoyancy()
 {
-	Particle* p = new Particle(MUELLE, { 0,21,0 }, { 0,0,0 });
+	Particle* p = new Particle(BOX_PART, { 0,21,0 }, { 0,0,0 });
 	p->setMass(50.0);
 	_particles.push_back(p);
 
-	auto f = new BuoyancyForceGenerator(12, 10, 500);
+	auto f = new BuoyancyForceGenerator(12, 7, 1000);
 	pFR->addRegistry(gravGen, p);
 
 	pFR->addRegistry(f, p);
