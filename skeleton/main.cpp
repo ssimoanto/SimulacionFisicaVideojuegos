@@ -131,6 +131,12 @@ void keyPress(unsigned char key, const PxTransform& camera)
     case 'T':
         particleSystem->whirl->changeWhirl();
         break;
+    case 'M': particleSystem->generateSpringDemo();
+        break;
+    case 'L': particleSystem->slinky();
+        break;
+    case 'N': particleSystem->buoyancy();
+        break;
         //void changeWhirl() { isOn = !isOn; }
     default:
         break;

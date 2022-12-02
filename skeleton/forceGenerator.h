@@ -126,8 +126,8 @@ public:
 
 	ExplosionBoomForceGenerator();
 	ExplosionBoomForceGenerator(float kConst, double radius, Vector3 posi, float _dur) {
-		k = kConst*1000;
-		R = radius*1000;
+		k = kConst * 1000;
+		R = radius * 1000;
 		pos = posi;
 		tiempo = _dur;
 		fuerzi = { 0,0,0 };
@@ -154,4 +154,92 @@ public:
 
 	}
 	float tiempo;
+};
+class SpringForceGenerator : public ForceGenerator {
+public:
+	SpringForceGenerator(double k, double resting_length, Particle* other) {
+		_k = k;
+		_resting_length = resting_length;
+		_other = other;
+	}
+	virtual void updateForce(Particle* particle, double t) {
+		Vector3 force = _other->getPos() - particle->getPos();
+
+		const float length = force.normalize();
+		const float delta_x = length - _resting_length;
+
+		force *= delta_x * _k;
+
+		particle->addForce(force);
+	}
+
+	inline void setk(double k) { _k = k; };
+
+	inline double getK() { return _k; }
+
+	~SpringForceGenerator() = default;
+
+protected:
+	double _k;
+	double _resting_length;
+	Particle* _other;
+
+};
+class AnchoredSpringFG : public SpringForceGenerator {
+public:
+	AnchoredSpringFG(double k, double resting, Vector3 anchor_pos) : SpringForceGenerator(k, resting, nullptr)
+	{
+		_other = new Particle(BOX_PART, anchor_pos, { 0,0,0 });
+	}
+
+	~AnchoredSpringFG() {
+		delete _other;
+	}
+};
+
+class BuoyancyForceGenerator : public ForceGenerator
+{
+public:
+	BuoyancyForceGenerator(float h, float V, float d) {
+		_height = h;
+		_volume = V;
+		_liquid_density = d;
+
+		_liquid_particle = new Particle(PLANO, { 0,15,0 }, { 0,0,0 });
+	}
+
+	virtual void updateForce(Particle* particle, double t) {
+		float h = particle->getPos().y;
+		float h0 = _liquid_particle->getPos().y;
+
+		Vector3 f(0, 0, 0);
+		float immersed = 0.0;
+
+		if (h - h0 > _height * 0.5)
+		{
+			immersed = 0.0;
+		}
+		else if (h0 - h > _height * 0.5) {
+			immersed = 1.0;
+		}
+		else
+		{
+			immersed = (h0 - h) / _height + 0.5;
+		}
+
+		f.y = _liquid_density * _volume * immersed * 9.8;
+
+		particle->addForce(f);
+	}
+
+	virtual ~BuoyancyForceGenerator() = default;
+
+protected:
+
+	float _height;
+	float _volume;
+	float _liquid_density;
+	float _gravity = 9.8;
+
+	Particle* _liquid_particle;
 };

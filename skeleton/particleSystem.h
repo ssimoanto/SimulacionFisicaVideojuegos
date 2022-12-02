@@ -20,7 +20,7 @@ protected:
 
 	Particle* particle;
 	ParticleGenerator* _firework_gen;
-	
+
 	ParticleForceRegistry* pFR;
 public:
 	GravityForceGenerator* gravGen;
@@ -64,4 +64,8 @@ public:
 			pFR->addRegistry(boom, p);
 		}
 	}
+	//muelles
+	void generateSpringDemo();
+	void slinky();
+	void buoyancy();
 };
