@@ -3,39 +3,36 @@
 #include <PxPhysics.h>
 #include "RenderUtils.hpp"
 #include <list>
-//#include "DynamicsForceRegistry.h"
-//
-//#include "Explosion.h"
 
 using namespace physx;
 
 class WorldManager
 {
 public:
-	WorldManager(PxPhysics* gPhysics, PxScene* gScene);
+	WorldManager(physx::PxPhysics* gPhysics, physx::PxScene* gScene);
 	~WorldManager();
 
 
-	void addDynamicObject();
-	void addStaticObject();
+	void addObject();
+	//void addStaticObject();
 	void update(double t);
-	void addForce();
+	//void addForce();
 
-	void changeAct() {/* exPrueba->activate();*/ };
+	
 
 protected:
 
 	std::list<PxRigidDynamic*> _objects;
 	RenderItem* item;
-	PxPhysics* gPhysics;
-	PxScene* gScene;
+	PxPhysics* _gPhysics;
+	PxScene* _gScene;
 
-	PxRigidDynamic* object;
+	RenderItem* rI;
 
 	Vector3 vel = { 0, 10, -10 };
 	Vector3 size = { 3, 3, 3 };
 
+	int num;
 
-	/*DynamicsForceRegistry* dfr;
-	Explosion* exPrueba;*/
+
 };

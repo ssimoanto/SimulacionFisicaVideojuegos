@@ -11,6 +11,7 @@
 #include "particleSystem.h"
 
 #include <iostream>
+#include "WorldManager.h"
 
 
 
@@ -33,6 +34,7 @@ ContactReportCallback gContactReportCallback;
 //Particle* p;
 ParticleSystem* particleSystem;
 RenderItem* suelo;
+WorldManager* world;
 
 // Initialize physics engine
 void initPhysics(bool interactive)
@@ -79,6 +81,7 @@ void initPhysics(bool interactive)
     wall->attachShape(*shapeWall);
     item = new RenderItem(shapeWall, wall, { 0.4,0.3,0.7,1 });
     gScene->addActor(*wall);
+     world=new WorldManager(gPhysics,gScene);
 }
 
 
@@ -93,6 +96,8 @@ void stepPhysics(bool interactive, double t)
     gScene->fetchResults(true);
 
     particleSystem->update(t);
+    world->update(t);
+
 }
 
 // Function to clean data

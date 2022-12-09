@@ -16,6 +16,7 @@
     <ClCompile Include="gaussianParticleGenerator.cpp" />
     <ClCompile Include="uniformParticleGenerator.cpp" />
     <ClCompile Include="firework.cpp" />
+    <ClCompile Include="WorldManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core.hpp" />
