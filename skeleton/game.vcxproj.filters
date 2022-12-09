@@ -35,6 +35,7 @@
     <ClInclude Include="firework.h" />
     <ClInclude Include="forceGenerator.h" />
     <ClInclude Include="particleForceRegistry.h" />
+    <ClInclude Include="WorldManager.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Render">

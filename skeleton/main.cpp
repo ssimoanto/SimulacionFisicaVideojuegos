@@ -65,6 +65,20 @@ void initPhysics(bool interactive)
     //particleSystem->addParticleGen(UNIFORM);
     particleSystem->getParticleGenerator("Gaussian")->changeOperative();
     particleSystem->getParticleGenerator("Uniform")->changeOperative();
+    //practica 5
+    PxRigidStatic* floor = gPhysics->createRigidStatic(PxTransform({ 0,0,0 }));
+    PxShape* shape = CreateShape(PxBoxGeometry(100, 0.1, 100));
+    floor->attachShape(*shape);
+   auto item = new RenderItem(shape, floor, { 0.9,0.1,0.65,1 });
+    gScene->addActor(*floor);
+
+
+    PxRigidStatic* wall = gPhysics->createRigidStatic(PxTransform({ 10,10,-30 }));
+    //PxRigidDynamic* wall = gPhysics->createRigidDynamic(PxTransform({ 10,30,-30}));
+    PxShape* shapeWall = CreateShape(PxBoxGeometry(40, 20, 5));
+    wall->attachShape(*shapeWall);
+    item = new RenderItem(shapeWall, wall, { 0.4,0.3,0.7,1 });
+    gScene->addActor(*wall);
 }
 
 
