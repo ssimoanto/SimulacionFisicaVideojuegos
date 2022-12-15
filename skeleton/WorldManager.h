@@ -3,6 +3,7 @@
 #include <PxPhysics.h>
 #include "RenderUtils.hpp"
 #include <list>
+#include "particleForceRegistry.h"
 
 using namespace physx;
 
@@ -17,7 +18,7 @@ public:
 	//void addStaticObject();
 	void update(double t);
 	//void addForce();
-
+	void explode();
 	
 
 protected:
@@ -33,6 +34,8 @@ protected:
 	Vector3 size = { 3, 3, 3 };
 
 	int num;
+	RigidForceRegistry* reg;
+	WindOfChangeForceGenerator* windGen;
 
 
 };

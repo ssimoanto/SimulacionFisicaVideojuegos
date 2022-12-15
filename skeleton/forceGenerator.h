@@ -10,6 +10,7 @@ class ForceGenerator {
 
 public:
 	virtual void updateForce(Particle* particle, double duration) = 0;
+	virtual void updateForce(physx::PxRigidBody* solid, double duration) {}
 	std::string _name;
 	double t = -1e10;
 	bool isOn = false;
@@ -79,6 +80,20 @@ public:
 		//std::cout << dragF.x << "/t" << dragF.y << "/t" << dragF.z << "/t" << std::endl;
 		particle->addForce(dragF);
 	}
+	 void updateForce(physx::PxRigidBody* solid, double duration) override {
+		 if (fabs(solid->getInvMass()) < 1e-10) return;
+		 //compute drag force
+		 Vector3 v = solid->getLinearVelocity() + f;
+		 float drag_coef = v.normalize();
+		 float absdrag = abs(drag_coef);
+		 Vector3 dragF;
+		 drag_coef = _k1 * drag_coef + _k2 * absdrag * drag_coef;
+		 dragF = -v * drag_coef;
+		 //Apply drag force
+		 //std::cout << dragF.x << "/t" << dragF.y << "/t" << dragF.z << "/t" << std::endl;
+		 solid->addForce(dragF);
+	 }
+
 	void changeWind() { isOn = !isOn; }
 
 };
@@ -153,6 +168,27 @@ public:
 		R = R + 343 * newT;
 
 	}
+	 void updateForce(physx::PxRigidBody* solid, double duration) override {
+		 if (fabs(solid->getInvMass()) < 1e-10) return;
+		 auto newT = GetLastTime() - tiempo;
+		 if (tiempo <= mu)R += 1000 * tiempo;
+		 auto particlePos = solid->getGlobalPose().p;
+
+		 r = sqrt(pow((particlePos.x - pos.x), 2) + pow((particlePos.y - pos.y), 2) + pow((particlePos.z - pos.z), 2));
+
+		 if (r < R)
+		 {
+			 auto a = k / pow(r, 2);
+			 auto b = pow(2.71828182846, -(t / mu));
+
+			 fuerzi = Vector3(particlePos.x - pos.x, particlePos.y - pos.y, particlePos.z - pos.z);
+			 fuerzi *= a * b;
+		 }
+
+		 solid->addForce(fuerzi);
+		 R = R + 343 * newT;
+	}
+
 	float tiempo;
 };
 class SpringForceGenerator : public ForceGenerator {

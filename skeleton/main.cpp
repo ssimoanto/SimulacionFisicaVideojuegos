@@ -156,7 +156,11 @@ void keyPress(unsigned char key, const PxTransform& camera)
         break;
     case 'N': particleSystem->buoyancy();
         break;
+    case 'Q': world->addObject();
+        break;
         //void changeWhirl() { isOn = !isOn; }
+    case 'Z': world->explode();
+        break;
     default:
         break;
     }
