@@ -27,9 +27,6 @@ void WorldManager::addObject()
 		_gScene->addActor(*new_solid);
 
 		_objects.push_back(new_solid);
-		//if (windGen->isOn)
-			new_solid->setAffectedByWind();
-		// reg->addRegistry(windGen, new_solid);
 
 	}
 }
@@ -39,13 +36,12 @@ void WorldManager::update(double t)
 	for (auto o : _objects)
 		if (windGen->isOn && o->affByWind) {
 			reg->addRegistry(windGen, o);
-			o->affByWind = false;
 		}
 
 	reg->updateForce(t);
 }
 
-void WorldManager::explode()
+void WorldManager::wind()
 {
 	windGen->changeWind();
 }
