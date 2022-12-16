@@ -159,7 +159,7 @@ void keyPress(unsigned char key, const PxTransform& camera)
     case 'Q': world->addObject();
         break;
         //void changeWhirl() { isOn = !isOn; }
-    case 'Z': world->explode();
+    case 'Z': world->wind();
         break;
     default:
         break;

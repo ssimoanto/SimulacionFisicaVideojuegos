@@ -34,7 +34,7 @@ void WorldManager::addObject()
 void WorldManager::update(double t)
 {
 	for (auto o : _objects)
-		if (windGen->isOn && o->affByWind) {
+		if (windGen->isOn) {
 			reg->addRegistry(windGen, o);
 		}
 

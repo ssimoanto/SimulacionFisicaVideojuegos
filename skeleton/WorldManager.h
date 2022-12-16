@@ -18,7 +18,7 @@ public:
 	//void addStaticObject();
 	void update(double t);
 	//void addForce();
-	void explode();
+	void wind();
 	
 
 protected:
