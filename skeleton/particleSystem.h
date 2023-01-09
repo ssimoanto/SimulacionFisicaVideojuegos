@@ -9,10 +9,11 @@
 #include <vector>
 #include "forceGenerator.h"
 #include "particleForceRegistry.h"
+using namespace physx;
 enum GeneratorName {
 	GAUSSIAN, UNIFORM, FIREWORK, SHOOT_CANYON
 };
-class ParticleSystem {
+class GameManager {
 protected:
 	std::list<Particle*> _particles;
 	std::list<std::shared_ptr<ParticleGenerator>>_particle_generators;
@@ -22,6 +23,13 @@ protected:
 	ParticleGenerator* _firework_gen;
 
 	ParticleForceRegistry* pFR;
+	physx::PxScene* scene;
+	physx::PxPhysics* physics;
+	PxRigidStatic* floor;
+	RenderItem* floorItem;
+	std::string display_text;
+	std::string points_text;
+
 public:
 	GravityForceGenerator* gravGen;
 	WindOfChangeForceGenerator* windGen;
@@ -30,8 +38,8 @@ public:
 
 	Firework* _firework = nullptr;
 	bool isOn = false;
-	ParticleSystem();
-	~ParticleSystem() {
+	GameManager(physx::PxScene* Scene, physx::PxPhysics* Physics);
+	~GameManager() {
 
 		for (auto e : _particles)
 		{
@@ -68,4 +76,50 @@ public:
 	void generateSpringDemo();
 	void slinky();
 	void buoyancy();
+
+	//proyecto final
+	void createScene();
+	int ActualLifes = 3;
+	int points = 0;
+	int lastShoot = 0;
+	struct DynamicBody {
+		physx::PxRigidActor* body;
+		RenderItem* rendIt;
+		
+		//double _remaining_time = 5;
+		bool _alive = false;
+
+		float lifeTime = 1.0;
+		/*vector<string> forcesNames;*/
+		/*double maxTimeAlive;
+		double timeAlive = -1.0;*/
+	};
+	struct StaticBody {
+		physx::PxRigidActor* body;
+		RenderItem* rendIt;
+	};
+	//struct Weapon {
+	//	physx::PxRigidActor* body;
+	//	RenderItem* rendIt;
+	//	double _remaining_time = 5;
+	//	bool _alive = false;
+	//	/*vector<string> forcesNames;*/
+	//	/*double maxTimeAlive;
+	//	double timeAlive = -1.0;*/
+	//};
+
+	std::list<DynamicBody*>fruits;
+	std::list<DynamicBody*>weapons;
+	DynamicBody* bull;
+	bool canShoot = true;
+
+	void shootWeapon();
+	void addFruit(double t);
+	void deleteDynamicBody(DynamicBody* d,std::string s);
+	//ui
+	void renderLifes();
+	void renderPoints();
+	Particle* pLife;
+	//colissions
+	void collisionsUpdate(double t);
 };

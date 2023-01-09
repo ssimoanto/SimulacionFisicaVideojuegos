@@ -6,12 +6,12 @@ Particle::Particle(ParticleType type, Vector3 _posi, Vector3 _vel)
 	_type = type;
 	switch (_type) {
 	case FIREWORKS:
-		a = physx::PxVec3(0, -10.0, 0);
+		a = physx::PxVec3(0, 0.0, 0);
 		mass = 2.5f;
 		inv_mass = 1 / mass;
 		pose = physx::PxTransform(_posi);
 		v = _vel;
-		renderItem = new RenderItem(CreateShape(physx::PxSphereGeometry(1)), &pose, { 0,0.5,0.5,1 });
+		renderItem = new RenderItem(CreateShape(physx::PxSphereGeometry(1)), &pose, { (float)(rand() % 255 + 0) / 255, (float)(rand() % 255 + 0) / 255, (float)(rand() % 255 + 0) / 255,1 });
 
 		break;
 	case CANYON_BALL:
@@ -72,6 +72,14 @@ Particle::Particle(ParticleType type, Vector3 _posi, Vector3 _vel)
 		pose = physx::PxTransform(_posi);
 		v = _vel;
 		renderItem = new RenderItem(CreateShape(physx::PxBoxGeometry(10.0f, .2f, 10.0f)), &pose, { .2,.4,.6,1.0 });
+		break;
+	case LIFE:
+		a = physx::PxVec3(0, .0, 0);
+		mass = 10.0f;
+		inv_mass = 1 / mass;
+		pose = physx::PxTransform(_posi);
+		v = _vel;
+		renderItem = new RenderItem(CreateShape(physx::PxSphereGeometry(5)), &pose, { 1,.0,.0,1.0 });
 		break;
 	}
 

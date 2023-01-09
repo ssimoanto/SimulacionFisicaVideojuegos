@@ -11,14 +11,16 @@
 class Firework : public Particle {
 private:
 	std::list<std::shared_ptr <ParticleGenerator>> _gens;
-	Vector3 poss;
+	/*Vector3 poss;*/
+	
 public:
+	int numDivisions = 0;
 	Firework(Vector3 _posi, Vector3 _vel);
 	~Firework() {};
 	void update(double t);
 	Firework* clone() const override {
 		Firework* p = new Firework(pose.p, v);
-		p->setTime(_remaining_time);
+		p->setTime(_remaining_time); p->numDivisions = numDivisions;
 		for (auto g : _gens) p->addGenerator(g);
 		return p;
 	}

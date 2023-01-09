@@ -3,7 +3,7 @@
 #include "core.hpp"
 #include "RenderUtils.hpp"
 
-enum ParticleType { CANYON_BALL, PISTOL_BULLET, FIREWORKS, GAUSSIAN_BALL, BOX_PART, MUELLE, PLANO };
+enum ParticleType { CANYON_BALL, PISTOL_BULLET, FIREWORKS, GAUSSIAN_BALL, BOX_PART, MUELLE, PLANO,LIFE };
 class Particle {
 protected:
 
@@ -18,7 +18,7 @@ protected:
 	RenderItem* renderItem;
 
 	Vector3 v;
-	Vector3 a;
+	
 
 	double d;
 	float mass;
@@ -34,6 +34,7 @@ public:
 		Particle* p = new Particle(_type, pose.p, v);
 		return p;
 	}
+	Vector3 a;
 	inline Vector3 getPos() { return pose.p; }
 	inline Vector3 getVel() { return v; }
 	inline void setVelocity(Vector3 vel) { v = vel; }

@@ -21,9 +21,10 @@ protected:
 
 	bool _operative;
 public:
-	ParticleGenerator(std::string _name,Vector3 _posi,Vector3 _vel);
+	ParticleGenerator(){}
+	ParticleGenerator(std::string _name, Vector3 _posi, Vector3 _vel);
 	~ParticleGenerator() {};
-	void setParticle(Particle *model);
+	void setParticle(Particle* model);
 	virtual std::string getGeneratorName();
 	// = 0 -> virtual puro, hay que sobreescribirlo si o si
 	virtual std::list<Particle*> generateParticles() = 0;
@@ -31,5 +32,42 @@ public:
 	inline bool isOperative() { return _operative; }
 	inline void changeOperative() { _operative = !_operative; }
 	inline void putNum(int n) { _num_particles = n; }
+
+};
+
+class CircleGenerator : public ParticleGenerator
+{
+	int max_, min_;
+	int fws;
+	const float PI = 3.1415;
+public:
+	CircleGenerator(int max, int min): ParticleGenerator() {
+		max_ = max;
+		min_ = min;
+		fws = 10;
+		name = "CIRCLE";
+	}
+	~CircleGenerator() = default;
+
+
+	std::list<Particle*>generateParticles() override {
+
+		std::list<Particle*>x;
+		auto random = rand() % max_ + min_;
+		auto angle = 90;
+		for (int i = 0; i < fws; i++)
+		{
+			auto p = _model->clone();
+
+			p->setPosition(_model->getPos());
+			p->setVelocity(Vector3(_model->getVel().x + random * cos(angle * PI / 180.0),
+				_model->getVel().y, _model->getVel().z + random * sin(angle * PI / 180.0)));
+			angle += 360.0 / fws;
+
+			x.push_back(p);
+		}
+
+		return x;
+	}
 
 };

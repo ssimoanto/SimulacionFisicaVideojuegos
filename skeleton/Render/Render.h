@@ -45,6 +45,10 @@
 #else
 #error platform not supported.
 #endif
+#include <string>
+
+extern std::string display_text;
+extern std::string points_text;
 
 namespace Snippets
 {
@@ -55,6 +59,7 @@ namespace Snippets
 	void renderShape(const physx::PxShape& shape, const physx::PxTransform& transform, const physx::PxVec4& color);
 	void renderActors(physx::PxRigidActor** actors, const physx::PxU32 numActors, bool shadows = false, const physx::PxVec4& color = physx::PxVec4(0.0f, 0.75f, 0.0f, 1.0f));
 	void finishRender();
+	void drawText(const std::string& text, int x, int y);
 }
 
 #define MAX_NUM_ACTOR_SHAPES 128
