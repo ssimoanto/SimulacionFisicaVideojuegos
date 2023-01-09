@@ -122,4 +122,5 @@ public:
 	Particle* pLife;
 	//colissions
 	void collisionsUpdate(double t);
+	void collisionsUpdate2(double t);
 };

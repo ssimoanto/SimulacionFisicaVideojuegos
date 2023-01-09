@@ -87,6 +87,8 @@ void GameManager::update(double t)
 
 	/*}*/
 	collisionsUpdate(t);
+	collisionsUpdate2(t);
+
 }
 
 std::shared_ptr<ParticleGenerator> GameManager::getParticleGenerator(std::string gn)
@@ -296,7 +298,7 @@ void GameManager::deleteDynamicBody(DynamicBody* d, std::string s)
 	//if (d->_alive) {
 	if (s == "f") {
 		d->body->setGlobalPose({ 1000000,0,0 });
-	
+
 	}
 
 	else d->body->setGlobalPose({ 2000000,0,0 });
@@ -338,42 +340,68 @@ void GameManager::collisionsUpdate(double t) {
 
 		}
 		else {
-			while (it2 != weapons.end()) {
+			//while (it2 != weapons.end()) {
 
-				(*it2)->lifeTime -= t;
-				if ((*it2)->lifeTime <= 0) {
+			//	(*it2)->lifeTime -= t;
+			//	if ((*it2)->lifeTime <= 0) {
 
-					deleteDynamicBody(*it2, "w");
-					it2 = weapons.erase(it2);
+			//		deleteDynamicBody(*it2, "w");
+			//		it2 = weapons.erase(it2);
 
-				}
-				else/* if ((*itFruits)->_alive && (*it2)->_alive)*/ {
-					if (physx::PxGeometryQuery::overlap((*itFruits)->rendIt->shape->getGeometry().sphere(), (*itFruits)->body->getGlobalPose(), (*it2)->rendIt->shape->getGeometry().sphere(), (*it2)->body->getGlobalPose()))
-					{
-						cout << "chocan";
-						points++;
-						/*deleteDynamicBody(*it, "f");
-						*/
-						deleteDynamicBody(*it2, "w");
-						it2 = weapons.erase(it2);
-						deleteDynamicBody(*itFruits, "f");
-						itFruits = fruits.erase(itFruits);
-						//it = fruits.erase(it);
-					}
-					else ++it2;
-					//else {
-					//	/*++it;*/  ++it2;
-					//}
-				}
+			//	}
+			//	else if (physx::PxGeometryQuery::overlap((*itFruits)->rendIt->shape->getGeometry().sphere(), (*itFruits)->body->getGlobalPose(), (*it2)->rendIt->shape->getGeometry().sphere(), (*it2)->body->getGlobalPose()))
+			//		{
+			//			cout << "chocan";
+			//			points++;
+			//			/*deleteDynamicBody(*it, "f");
+			//			*/
+			//			deleteDynamicBody(*it2, "w");
+			//			it2 = weapons.erase(it2);
+			//			deleteDynamicBody(*itFruits, "f");
+			//			itFruits = fruits.erase(itFruits);
+			//			//it = fruits.erase(it);
+			//		}
+			//		else ++it2;
+			//		//else {
+			//		//	/*++it;*/  ++it2;
+			//		//}
+			//	}
 				/*else ++it2;*/
+			++itFruits;
+		}
 
-			}
-
-			/*}*/
-			/*else ++it;*/
-		}++itFruits;
-
+		/*}*/
+		/*else ++it;*/
 	}
-	
+
 }
 
+
+void GameManager::collisionsUpdate2(double t) {
+	auto itFruits = fruits.begin();
+	auto it2 = weapons.begin();
+
+	while (it2 != weapons.end()) {
+		while (itFruits != fruits.end()) {
+			if (physx::PxGeometryQuery::overlap((*it2)->rendIt->shape->getGeometry().sphere(), (*it2)->body->getGlobalPose(), (*itFruits)->rendIt->shape->getGeometry().sphere(), (*itFruits)->body->getGlobalPose())) {
+				points++;
+				/*deleteDynamicBody(*it, "f");
+				*/
+				/*deleteDynamicBody(*it2, "w");
+				it2 = weapons.erase(it2);*/
+				deleteDynamicBody(*itFruits, "f");
+				itFruits = fruits.erase(itFruits);
+				//it = fruits.erase(it);
+			}
+			else itFruits++;
+		}
+		(*it2)->lifeTime -= t;
+		if ((*it2)->lifeTime <= 0) {
+
+			deleteDynamicBody(*it2, "w");
+			it2 = weapons.erase(it2);
+		}
+
+		else it2++;
+	}
+}
