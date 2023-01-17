@@ -29,6 +29,8 @@ protected:
 	RenderItem* floorItem;
 	std::string display_text;
 	std::string points_text;
+	AnchoredSpringFG* f3;
+	Particle* p3;
 
 public:
 	GravityForceGenerator* gravGen;
@@ -40,7 +42,7 @@ public:
 	bool isOn = false;
 	GameManager(physx::PxScene* Scene, physx::PxPhysics* Physics);
 	~GameManager() {
-
+		deleteAllFruits();
 		for (auto e : _particles)
 		{
 			delete e;
@@ -79,6 +81,32 @@ public:
 
 	//proyecto final
 	void createScene();
+	void createLevels();
+	void startNextLevel();
+	void callStarterSpring();
+	struct Level {
+		int numOfFruits;
+		int frecuency;
+		int fruitsGeneratedInLevel;
+		
+		//bool actualLevel = false;
+	};
+	Level* level1;
+	Level* level2;
+	Level* level3;
+	Level* actualLevel=nullptr;
+
+
+	//lose
+	bool hasLost = false;
+	//win
+	bool hasWon = false;
+	
+	void victoryFireworks();
+	
+	bool isPlayerOnLevel = false;
+	bool whirlOn = false;
+	int whirlTimer = 200;
 	int ActualLifes = 3;
 	int points = 0;
 	int lastShoot = 0;
@@ -88,6 +116,7 @@ public:
 		
 		//double _remaining_time = 5;
 		bool _alive = false;
+		bool isBomb = false;
 
 		float lifeTime = 1.0;
 		/*vector<string> forcesNames;*/
@@ -98,15 +127,7 @@ public:
 		physx::PxRigidActor* body;
 		RenderItem* rendIt;
 	};
-	//struct Weapon {
-	//	physx::PxRigidActor* body;
-	//	RenderItem* rendIt;
-	//	double _remaining_time = 5;
-	//	bool _alive = false;
-	//	/*vector<string> forcesNames;*/
-	//	/*double maxTimeAlive;
-	//	double timeAlive = -1.0;*/
-	//};
+	
 
 	std::list<DynamicBody*>fruits;
 	std::list<DynamicBody*>weapons;
@@ -119,8 +140,14 @@ public:
 	//ui
 	void renderLifes();
 	void renderPoints();
+	void stopLoseFeedback();
 	Particle* pLife;
 	//colissions
-	void collisionsUpdate(double t);
-	void collisionsUpdate2(double t);
+	void collisionsBetweenFruitsAndFloor(double t);
+	void collisionsBetweenFruitsAndWeapons(double t);
+
+	//delete 
+	void deleteAllFruits();
+	void loseLevel();
+
 };

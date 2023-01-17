@@ -15,6 +15,8 @@
 
 std::string display_text;
 std::string points_text;
+std::string lost_text;
+
 
 int lifes = 3;
 
@@ -45,6 +47,7 @@ void updateUI() {
 	//points
 	points_text = "Points: " + std::to_string(particleSystem->points);
 	drawText(points_text, 100, 200);
+	
 }
 
 // Initialize physics engine
@@ -76,6 +79,7 @@ void initPhysics(bool interactive)
 	//particleSystem->renderPoints();
 	updateUI();
 	particleSystem->generateFireworkSystem();
+	particleSystem->generateSpringDemo();
 	particleSystem->addParticleGen();
 	//particleSystem->addParticleGen(UNIFORM);
 	particleSystem->getParticleGenerator("Gaussian")->changeOperative();
@@ -156,22 +160,22 @@ void keyPress(unsigned char key, const PxTransform& camera)
 	case 'C':
 		particleSystem->getParticleGenerator("Gaussian")->changeOperative();
 		break;
-	case 'V':
+	/*case 'V':
 		particleSystem->shootFirework(0);
 		break;
 	case 'G':
 		particleSystem->activeGrav();
-		break;
+		break;*/
 	case 'B':
 		particleSystem->boomNow();
 		break;
-	case 'Y':
+	/*case 'Y':
 		particleSystem->windGen->changeWind();
-		break;
+		break;*/
 	case 'T':
 		particleSystem->whirl->changeWhirl();
 		break;
-	case 'M': particleSystem->generateSpringDemo();
+	case 'M': particleSystem->callStarterSpring();
 		break;
 	case 'L': particleSystem->slinky();
 		break;

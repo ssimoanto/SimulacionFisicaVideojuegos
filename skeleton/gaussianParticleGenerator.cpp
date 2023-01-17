@@ -32,7 +32,7 @@ std::list<Particle*> GaussianParticleGenerator::generateParticles()
 		newPar->setVelocity(_model->getVel() + Vector3(normal(d) * std_dev_vel.x, normal(d) * std_dev_vel.y, normal(d) * std_dev_vel.z));
 		/*auto newPar = new Particle(GAUSSIAN_BALL, _model->getPos() + Vector3(normal(d) * std_dev_pos.x, normal(d) * std_dev_pos.y, normal(d) * std_dev_pos.z),
 			_model->getVel() + Vector3(normal(d) * std_dev_vel.x, normal(d) * std_dev_vel.y, normal(d) * std_dev_vel.z));*/
-		newPar->setTime(7);
+		newPar->setTime(1.8);
 		lista.push_back(newPar);
 	}
 

@@ -10,11 +10,13 @@ GameManager::GameManager(physx::PxScene* Scene, physx::PxPhysics* Physics)
 	gravGen = new GravityForceGenerator({ 0,-9.8,0 });
 	windGen = new WindOfChangeForceGenerator({ 20,0,0 }, 0.55, 0);
 	//windGen->isOn = true;
-	whirl = new WhirlwindOfChangeForceGenerator(7, { 0,0,0 }, { 6,2,0 });
+	whirl = new WhirlwindOfChangeForceGenerator(7, { 50,50,-50 }, { 6,2,0 });
 	//whirl->isOn = true;
 
 	boom = new ExplosionBoomForceGenerator(200, 5, { 0,0,0 }, 2);
 
+
+	createLevels();
 
 	//renderLifes();
 
@@ -23,7 +25,7 @@ GameManager::GameManager(physx::PxScene* Scene, physx::PxPhysics* Physics)
 
 void GameManager::addParticleGen(/*GeneratorName gn*/)
 {
-	_particle_generators.push_back(std::shared_ptr<ParticleGenerator>(new GaussianParticleGenerator("Gaussian", { 0, 0, 0 }, { -16,150,-27 }, { 15,1,15 }, { 1,1,1 }, 1, GAUSSIAN_BALL)));
+	_particle_generators.push_back(std::shared_ptr<ParticleGenerator>(new GaussianParticleGenerator("Gaussian", { 50, 50, -50 }, { -16,150,-27 }, { 15,1,15 }, { 1,1,1 }, 1, GAUSSIAN_BALL)));
 	_particle_generators.push_back(std::shared_ptr<ParticleGenerator>(new UniformParticleGenerator({ 0, 0, 0 }, { 0, 0, -100 })));
 	//_particle_generators.push_back(std::shared_ptr<ParticleGenerator>(new UniformParticleGenerator("Uniform", { 0, 50, 0 }, { 0,10,27 }, 12, GAUSSIAN_BALL)));
 	/*switch (gn)
@@ -78,16 +80,41 @@ void GameManager::update(double t)
 			it = _particles.erase(it);
 		}
 	}
-	/*if (lastShoot + 5000 <= t) {*/
-	lastShoot -= t;
-	if (lastShoot <= 0) {
-		addFruit(t);
-		lastShoot = 100;
+	//turn of whirl 
+	if (whirlOn) {
+		whirlTimer -= t;
+		if (whirlTimer <= 0) {
+			whirlOn = false;
+			stopLoseFeedback();
+		}
 	}
-
+	/*if (lastShoot + 5000 <= t) {*/
+	if (ActualLifes <= 0 && !hasLost) {
+		deleteAllFruits();
+		ActualLifes = 0;
+		points = 0;
+		glClearColor(1.0, 0.0, 0.0, 0.0);
+		getParticleGenerator("Gaussian")->changeOperative();
+		whirl->changeWhirl();
+		isPlayerOnLevel = false;
+		hasLost = true;
+		whirlOn = true;
+		//shootFirework(0);
+	}
+	lastShoot -= t;
+	if (isPlayerOnLevel && lastShoot <= 0 && actualLevel->fruitsGeneratedInLevel < actualLevel->numOfFruits) {
+		addFruit(t);
+		lastShoot = actualLevel->frecuency;
+	}
+	if (isPlayerOnLevel && actualLevel->fruitsGeneratedInLevel == actualLevel->numOfFruits && !hasWon && !hasLost && fruits.empty()) {
+		isPlayerOnLevel = false;
+		p3->kill();
+		victoryFireworks();
+		hasWon = true;
+	}
 	/*}*/
-	collisionsUpdate(t);
-	collisionsUpdate2(t);
+	collisionsBetweenFruitsAndFloor(t);
+	collisionsBetweenFruitsAndWeapons(t);
 
 }
 
@@ -139,34 +166,37 @@ bool GameManager::isFireworkAlive()
 }
 void GameManager::shootFirework(int type)
 {
+	auto r = rand() % ((50 - 20) + 1) + 20;
+	auto r2 = rand() % ((-50 - -80) + 1) + -80;
+
 	auto f = _firework_pool[type]->clone();
-	f->setPosition({ 50,50,-50 });
+	f->setPosition({ (float)r,50,(float)r2 });
 	_particles.push_back(f);
 }
 void GameManager::generateSpringDemo()
 {
-	//Particle* p1=new Particle()
-	Particle* p1 = new Particle(MUELLE, { -10,10,0 }, { 0,0,0 });
-	Particle* p2 = new Particle(MUELLE, { 10,10,0 }, { 0,0,0 });
+	////Particle* p1=new Particle()
+	//Particle* p1 = new Particle(MUELLE, { -10,10,0 }, { 0,0,0 });
+	//Particle* p2 = new Particle(MUELLE, { 10,10,0 }, { 0,0,0 });
 
-	auto f1 = new SpringForceGenerator(10, 10, p2);
+	//auto f1 = new SpringForceGenerator(10, 10, p2);
 
-	auto f2 = new SpringForceGenerator(10, 10, p1);
+	//auto f2 = new SpringForceGenerator(10, 10, p1);
 
-	pFR->addRegistry(f1, p1);
-	pFR->addRegistry(f2, p2);
+	//pFR->addRegistry(f1, p1);
+	//pFR->addRegistry(f2, p2);
 
-	_particles.push_back(p1);
-	_particles.push_back(p2);
-
-
-	Particle* p3 = new Particle(MUELLE, { 0,30,0 }, { 0,0,0 });
+	//_particles.push_back(p1);
+	//_particles.push_back(p2);
 
 
-	auto f3 = new AnchoredSpringFG(20, 10, { 0.0,50.0,0.0 });
+	 //p3 = new Particle(MUELLE, { 0,30,-50 }, { 0,0,0 });
 
-	pFR->addRegistry(f3, p3);
-	_particles.push_back(p3);
+
+	f3 = new AnchoredSpringFG(20, 10, { 0.0,50.0,-50.0 });
+
+	/*pFR->addRegistry(f3, p3);
+	_particles.push_back(p3);*/
 }
 
 void GameManager::slinky()
@@ -241,15 +271,103 @@ void GameManager::createScene() {
 	//scene->addActor(*wall);
 
 }
+void GameManager::createLevels() {
+	//level1
+	level1 = new Level();
+	level1->numOfFruits = 1;
+	level1->frecuency = 100;
+	//level2
+	level2 = new Level();
+	level2->numOfFruits = 10;
+	level2->frecuency = 250;
+	//level3
+	level3 = new Level();
+	level3->numOfFruits = 25;
+	level3->frecuency = 100;
+
+	//actualLevel = level1;
+}
+void GameManager::startNextLevel() {
+	if (isPlayerOnLevel) return;
+	//if no level has been started
+	if (actualLevel == nullptr) {
+		actualLevel = level1;
+		isPlayerOnLevel = true;
+	}
+	else if (actualLevel == level1 /*&& actualLevel->completed*/) {
+		if (hasWon) {
+			actualLevel = level2;
+			ActualLifes = 3;
+			hasWon = false;
+			isPlayerOnLevel = true;
+		}
+		else
+		{
+			whirlTimer = 200;
+			hasLost = false;
+			ActualLifes = 3;
+			actualLevel->fruitsGeneratedInLevel = 0;
+			isPlayerOnLevel = true;
+		}
+	}
+	else if (actualLevel == level2 /*&& actualLevel->completed*/) {
+		if (hasWon) {
+			actualLevel = level3;
+			ActualLifes = 3;
+			hasWon = false;
+			isPlayerOnLevel = true;
+		}
+		else
+		{
+			whirlTimer = 200;
+			hasLost = false;
+			ActualLifes = 3;
+			actualLevel->fruitsGeneratedInLevel = 0;
+			isPlayerOnLevel = true;
+		}
+	}
+	else if (actualLevel == level3 /*&& actualLevel->completed*/) {
+		if (hasWon) {
+			actualLevel = level1;
+			ActualLifes = 3;
+			hasWon = false;
+			isPlayerOnLevel = true;
+		}
+		else
+		{
+			whirlTimer = 200;
+			hasLost = false;
+			ActualLifes = 3;
+			actualLevel->fruitsGeneratedInLevel = 0;
+			isPlayerOnLevel = true;
+		}
+	}
+}
+void GameManager::callStarterSpring() {
+	if (isPlayerOnLevel) return;
+	//spring
+	p3 = new Particle(MUELLE, { 0,30,-50 }, { 0,0,0 });
+	pFR->addRegistry(f3, p3);
+	_particles.push_back(p3);
+
+	//call
+	startNextLevel();
+}
+void GameManager::victoryFireworks() {
+	for (size_t i = 0; i < 15; i++)
+	{
+		shootFirework(0);
+	}
+}
 void GameManager::shootWeapon()
 {
 	if (!weapons.empty()) return;
 	auto weap = physics->createRigidDynamic(physx::PxTransform(GetCamera()->getEye()));
-	weap->setLinearVelocity({ GetCamera()->getDir() * 200 });
+	weap->setLinearVelocity({ GetCamera()->getDir() * 300 });
 	weap->setAngularVelocity({ 0,0,0 });
 
 
-	auto shape = CreateShape(physx::PxSphereGeometry(6.0)); weap->attachShape(*shape);
+	auto shape = CreateShape(physx::PxSphereGeometry(3.0)); weap->attachShape(*shape);
 	physx::PxRigidBodyExt::setMassAndUpdateInertia(*weap, 2.5);
 
 	auto x = new RenderItem(shape, weap, { 0.8, 0.8, 0.8, 1.0 });
@@ -268,6 +386,16 @@ void GameManager::shootWeapon()
 
 void GameManager::addFruit(double t)
 {
+	Vector4 col;
+	DynamicBody* s = new DynamicBody();
+	auto random = rand() % 6;
+	if (random == 0) {
+		col = { 0,0,0,1.0 };
+		s->isBomb = true;
+	}
+
+	else col = { 0.0, 1, 0.0, 1.0 };
+	actualLevel->fruitsGeneratedInLevel++;
 	lastShoot = t;
 	auto r = rand() % ((50 - 20) + 1) + 20;
 	auto r2 = rand() % ((-50 - -80) + 1) + -80;
@@ -280,14 +408,14 @@ void GameManager::addFruit(double t)
 	auto shape = CreateShape(physx::PxSphereGeometry(3.0)); fruit->attachShape(*shape);
 	physx::PxRigidBodyExt::setMassAndUpdateInertia(*fruit, 2.5);
 
-	auto x = new RenderItem(shape, fruit, { 0.0, 1, 0.0, 1.0 });
+	auto x = new RenderItem(shape, fruit, col);
 	//fruit->setLinearDamping(0.99);
 	fruit->setName("Fruit");
 	scene->addActor(*fruit);
 
 
 
-	DynamicBody* s = new DynamicBody();
+
 	s->body = fruit;/* s->_remaining_time = 5*/; s->rendIt = x; s->_alive = true;
 	//_bullets.push_back(s);
 	fruits.push_back(s);
@@ -320,19 +448,27 @@ void GameManager::renderPoints() {
 	points_text = "Points: " + std::to_string(points);
 	drawText(points_text, 600, 500);
 }
-void GameManager::collisionsUpdate(double t) {
+void GameManager::stopLoseFeedback() {
+	getParticleGenerator("Gaussian")->changeOperative();
+	whirl->changeWhirl();
+	glClearColor(0.3f, 0.4f, 0.5f, 1.0);
+	p3->kill();
+	/*p3 = new Particle(MUELLE, { 0,30,-50 }, { 0,0,0 });*/
+	/*pFR->deleteParticleRegistry(p3);
+	p3->setVelocity({ 0,0,0 });
+	p3->clearForce();
+	p3->setPosition({ 0, 30, -50 });*/
+
+}
+//Checks collisions between fruits and the floor
+void GameManager::collisionsBetweenFruitsAndFloor(double t) {
 
 	auto itFruits = fruits.begin();
-	auto it2 = weapons.begin();
-	// (it == fruits.end()) return;
+
 	while (itFruits != fruits.end()) {
-		/*if ((*itFruits)->_alive) {*/
-			/*(*itFruits)->lifeTime -= t;
-			if ((*itFruits)->lifeTime <= 0) {
-				deleteDynamicBody(*itFruits, "f");
-				itFruits = fruits.erase(itFruits);
-			}*/
+
 		if (physx::PxGeometryQuery::overlap((*itFruits)->rendIt->shape->getGeometry().sphere(), (*itFruits)->body->getGlobalPose(), floorItem->shape->getGeometry().box(), floor->getGlobalPose())) {
+
 			ActualLifes--;
 
 			deleteDynamicBody(*itFruits, "f");
@@ -340,58 +476,33 @@ void GameManager::collisionsUpdate(double t) {
 
 		}
 		else {
-			//while (it2 != weapons.end()) {
-
-			//	(*it2)->lifeTime -= t;
-			//	if ((*it2)->lifeTime <= 0) {
-
-			//		deleteDynamicBody(*it2, "w");
-			//		it2 = weapons.erase(it2);
-
-			//	}
-			//	else if (physx::PxGeometryQuery::overlap((*itFruits)->rendIt->shape->getGeometry().sphere(), (*itFruits)->body->getGlobalPose(), (*it2)->rendIt->shape->getGeometry().sphere(), (*it2)->body->getGlobalPose()))
-			//		{
-			//			cout << "chocan";
-			//			points++;
-			//			/*deleteDynamicBody(*it, "f");
-			//			*/
-			//			deleteDynamicBody(*it2, "w");
-			//			it2 = weapons.erase(it2);
-			//			deleteDynamicBody(*itFruits, "f");
-			//			itFruits = fruits.erase(itFruits);
-			//			//it = fruits.erase(it);
-			//		}
-			//		else ++it2;
-			//		//else {
-			//		//	/*++it;*/  ++it2;
-			//		//}
-			//	}
-				/*else ++it2;*/
 			++itFruits;
 		}
-
-		/*}*/
-		/*else ++it;*/
 	}
 
 }
 
-
-void GameManager::collisionsUpdate2(double t) {
+//Checks collisions between fruits and weapons
+void GameManager::collisionsBetweenFruitsAndWeapons(double t) {
 	auto itFruits = fruits.begin();
 	auto it2 = weapons.begin();
 
 	while (it2 != weapons.end()) {
 		while (itFruits != fruits.end()) {
 			if (physx::PxGeometryQuery::overlap((*it2)->rendIt->shape->getGeometry().sphere(), (*it2)->body->getGlobalPose(), (*itFruits)->rendIt->shape->getGeometry().sphere(), (*itFruits)->body->getGlobalPose())) {
-				points++;
-				/*deleteDynamicBody(*it, "f");
-				*/
-				/*deleteDynamicBody(*it2, "w");
-				it2 = weapons.erase(it2);*/
-				deleteDynamicBody(*itFruits, "f");
-				itFruits = fruits.erase(itFruits);
-				//it = fruits.erase(it);
+
+				if ((*itFruits)->isBomb) {
+					ActualLifes = 0;
+					deleteDynamicBody(*itFruits, "f");
+					itFruits = fruits.erase(itFruits);
+				}
+				else
+				{
+					points++;
+					deleteDynamicBody(*itFruits, "f");
+					itFruits = fruits.erase(itFruits);
+				}
+
 			}
 			else itFruits++;
 		}
@@ -403,5 +514,17 @@ void GameManager::collisionsUpdate2(double t) {
 		}
 
 		else it2++;
+	}
+}
+
+void GameManager::deleteAllFruits()
+{
+	auto itFruits = fruits.begin();
+
+	while (itFruits != fruits.end()) {
+
+		deleteDynamicBody(*itFruits, "f");
+		itFruits = fruits.erase(itFruits);
+
 	}
 }

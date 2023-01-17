@@ -49,6 +49,8 @@
 
 extern std::string display_text;
 extern std::string points_text;
+extern std::string lost_text;
+
 
 namespace Snippets
 {

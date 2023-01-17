@@ -14,7 +14,7 @@ Particle::Particle(ParticleType type, Vector3 _posi, Vector3 _vel)
 		renderItem = new RenderItem(CreateShape(physx::PxSphereGeometry(1)), &pose, { (float)(rand() % 255 + 0) / 255, (float)(rand() % 255 + 0) / 255, (float)(rand() % 255 + 0) / 255,1 });
 
 		break;
-	case CANYON_BALL:
+	/*case CANYON_BALL:
 		v = 200 * GetCamera()->getDir();
 		a = physx::PxVec3(0, -9.8, 0);
 		pose = physx::PxTransform(GetCamera()->getEye().x, GetCamera()->getEye().y, GetCamera()->getEye().z);
@@ -22,7 +22,7 @@ Particle::Particle(ParticleType type, Vector3 _posi, Vector3 _vel)
 		inv_mass = 1 / mass;
 		renderItem = new RenderItem(CreateShape(physx::PxSphereGeometry(1)), &pose, { 0,0.5,0.5,1 });
 
-		break;
+		break;*/
 		// cañon: 17,48 cm, masa 17,6 kg, distancia 3700 m
 		// https://es.wikipedia.org/wiki/Bola_de_ca%C3%B1%C3%B3n
 		// artilleria naval
@@ -44,7 +44,7 @@ Particle::Particle(ParticleType type, Vector3 _posi, Vector3 _vel)
 		inv_mass = 1 / mass;
 		pose = physx::PxTransform(_posi);
 		v = _vel;
-		renderItem = new RenderItem(CreateShape(physx::PxSphereGeometry(1)), &pose, { 0,0.5,0.5,1 });
+		renderItem = new RenderItem(CreateShape(physx::PxSphereGeometry(1)), &pose, { 1.0,0.0,0.0,1 });
 
 		break;
 	case BOX_PART:
@@ -58,7 +58,7 @@ Particle::Particle(ParticleType type, Vector3 _posi, Vector3 _vel)
 		break;
 	case MUELLE:
 		a = physx::PxVec3(0, .0, 0);
-		mass = 2.0f;
+		mass = 12.0f;
 		inv_mass = 1 / mass;
 		pose = physx::PxTransform(_posi);
 		v = _vel;
@@ -73,14 +73,7 @@ Particle::Particle(ParticleType type, Vector3 _posi, Vector3 _vel)
 		v = _vel;
 		renderItem = new RenderItem(CreateShape(physx::PxBoxGeometry(10.0f, .2f, 10.0f)), &pose, { .2,.4,.6,1.0 });
 		break;
-	case LIFE:
-		a = physx::PxVec3(0, .0, 0);
-		mass = 10.0f;
-		inv_mass = 1 / mass;
-		pose = physx::PxTransform(_posi);
-		v = _vel;
-		renderItem = new RenderItem(CreateShape(physx::PxSphereGeometry(5)), &pose, { 1,.0,.0,1.0 });
-		break;
+	
 	}
 
 	d = 0.99;
@@ -104,6 +97,9 @@ void Particle::update(double t)
 	v += totalAcceleration * t;// Impose drag (damping)
 	v *= powf(d, t); clearForce();
 
-	if (_remaining_time <= 0) exists = false;
-	else _remaining_time -= t;
+	if (_type != MUELLE) {
+		if (_remaining_time <= 0) exists = false;
+		else _remaining_time -= t;
+	}
+
 }

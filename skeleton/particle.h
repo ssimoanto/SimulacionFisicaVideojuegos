@@ -3,7 +3,7 @@
 #include "core.hpp"
 #include "RenderUtils.hpp"
 
-enum ParticleType { CANYON_BALL, PISTOL_BULLET, FIREWORKS, GAUSSIAN_BALL, BOX_PART, MUELLE, PLANO,LIFE };
+enum ParticleType { /*CANYON_BALL,*/ PISTOL_BULLET, FIREWORKS, GAUSSIAN_BALL, BOX_PART, MUELLE, PLANO, LIFE };
 class Particle {
 protected:
 
@@ -18,7 +18,7 @@ protected:
 	RenderItem* renderItem;
 
 	Vector3 v;
-	
+
 
 	double d;
 	float mass;
@@ -48,5 +48,6 @@ public:
 	Vector3 force;// Clears accumulated force
 	void clearForce() { force *= 0; }// Add force to apply in next integration only
 	void addForce(const Vector3& f) { force += f; }
+	void kill() { exists = false; }
 
 };
