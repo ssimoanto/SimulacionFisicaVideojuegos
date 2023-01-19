@@ -23,7 +23,6 @@ protected:
 public:
 	GaussianParticleGenerator(std::string _name, Vector3 _posi,Vector3 _vel,Vector3 d_posi,Vector3 d_vel,int _num, ParticleType t);
 	~GaussianParticleGenerator() {};
-	// override para sobreescribir (tiene que heredar de la clase)
 	std::list<Particle*> generateParticles() override;
 
 

@@ -13,16 +13,16 @@ using namespace physx;
 enum GeneratorName {
 	GAUSSIAN, UNIFORM, FIREWORK, SHOOT_CANYON
 };
-class GameManager {
+class ParticleSystem {
 protected:
 	std::list<Particle*> _particles;
 	std::list<std::shared_ptr<ParticleGenerator>>_particle_generators;
 	std::vector<Firework*> _firework_pool;
-
 	Particle* particle;
-	ParticleGenerator* _firework_gen;
+	
 
 	ParticleForceRegistry* pFR;
+	RigidForceRegistry* rFR;
 	physx::PxScene* scene;
 	physx::PxPhysics* physics;
 	PxRigidStatic* floor;
@@ -33,16 +33,18 @@ protected:
 	Particle* p3;
 
 public:
-	GravityForceGenerator* gravGen;
+	
 	WindOfChangeForceGenerator* windGen;
 	WhirlwindOfChangeForceGenerator* whirl;
-	ExplosionBoomForceGenerator* boom;
+	
 
 	Firework* _firework = nullptr;
 	bool isOn = false;
-	GameManager(physx::PxScene* Scene, physx::PxPhysics* Physics);
-	~GameManager() {
+	ParticleSystem(physx::PxScene* Scene, physx::PxPhysics* Physics);
+	~ParticleSystem() {
 		deleteAllFruits();
+		deleteStatics();
+		
 		for (auto e : _particles)
 		{
 			delete e;
@@ -52,32 +54,27 @@ public:
 			delete e;
 		}
 		_firework_pool.clear();
-		for (auto e : _particle_generators)
-		{
+		while (!_particle_generators.empty())
 			_particle_generators.pop_front();
-		}
-		delete gravGen;
-		delete windGen;
+
+		floor=nullptr;
+		delete pFR;
+		delete rFR;
+		
 	};
-	void addParticleGen(/*GeneratorName gn*/);
+	void addParticleGen();
 	void update(double t);
 	std::shared_ptr<ParticleGenerator> getParticleGenerator(std::string gn);
 	void onParticleDeath(Particle*);
 	void generateFireworkSystem();
 	bool isFireworkAlive();
-	//void create();
+	
 	void shootFirework(int type);
-	void activeGrav() { gravGen->isOn = !gravGen->isOn; }
-	void boomNow() {
-		for (auto p : _particles) {
-			boom->tiempo = GetLastTime();
-			pFR->addRegistry(boom, p);
-		}
-	}
+	
 	//muelles
 	void generateSpringDemo();
-	void slinky();
-	void buoyancy();
+	/*void slinky();
+	void buoyancy();*/
 
 	//proyecto final
 	void createScene();
@@ -88,8 +85,6 @@ public:
 		int numOfFruits;
 		int frecuency;
 		int fruitsGeneratedInLevel;
-		
-		//bool actualLevel = false;
 	};
 	Level* level1;
 	Level* level2;
@@ -107,6 +102,10 @@ public:
 	bool isPlayerOnLevel = false;
 	bool whirlOn = false;
 	int whirlTimer = 200;
+	int bombTimer = 150;
+	bool bombOn = false;
+	bool windOn = false;
+	int windTimer = 1000;
 	int ActualLifes = 3;
 	int points = 0;
 	int lastShoot = 0;
@@ -114,24 +113,23 @@ public:
 		physx::PxRigidActor* body;
 		RenderItem* rendIt;
 		
-		//double _remaining_time = 5;
 		bool _alive = false;
 		bool isBomb = false;
 
 		float lifeTime = 1.0;
-		/*vector<string> forcesNames;*/
-		/*double maxTimeAlive;
-		double timeAlive = -1.0;*/
+
+		bool isWind = false;
+		
 	};
 	struct StaticBody {
 		physx::PxRigidActor* body;
 		RenderItem* rendIt;
 	};
 	
-
+	std::list<StaticBody*>statics;
 	std::list<DynamicBody*>fruits;
 	std::list<DynamicBody*>weapons;
-	DynamicBody* bull;
+	
 	bool canShoot = true;
 
 	void shootWeapon();
@@ -141,13 +139,19 @@ public:
 	void renderLifes();
 	void renderPoints();
 	void stopLoseFeedback();
-	Particle* pLife;
+	
 	//colissions
 	void collisionsBetweenFruitsAndFloor(double t);
 	void collisionsBetweenFruitsAndWeapons(double t);
 
 	//delete 
 	void deleteAllFruits();
-	void loseLevel();
+	void deleteStatics();
 
+
+	void loseLevel();
+	void resetLoseParams();
+
+	//wind power up
+	void windPowerUp();
 };

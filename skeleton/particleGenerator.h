@@ -32,6 +32,7 @@ public:
 	inline bool isOperative() { return _operative; }
 	inline void changeOperative() { _operative = !_operative; }
 	inline void putNum(int n) { _num_particles = n; }
+	inline void setName(std::string n) { name = n; }
 
 };
 
@@ -58,11 +59,12 @@ public:
 		for (int i = 0; i < fws; i++)
 		{
 			auto p = _model->clone();
-
+			p->setTime(2.0);
 			p->setPosition(_model->getPos());
 			p->setVelocity(Vector3(_model->getVel().x + random * cos(angle * PI / 180.0),
 				_model->getVel().y, _model->getVel().z + random * sin(angle * PI / 180.0)));
 			angle += 360.0 / fws;
+
 
 			x.push_back(p);
 		}

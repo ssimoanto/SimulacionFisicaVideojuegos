@@ -11,7 +11,7 @@
 class Firework : public Particle {
 private:
 	std::list<std::shared_ptr <ParticleGenerator>> _gens;
-	/*Vector3 poss;*/
+	
 	
 public:
 	int numDivisions = 0;

@@ -49,5 +49,6 @@ public:
 	void clearForce() { force *= 0; }// Add force to apply in next integration only
 	void addForce(const Vector3& f) { force += f; }
 	void kill() { exists = false; }
+	void colour(Vector4 col) { renderItem->color = col; }
 
 };

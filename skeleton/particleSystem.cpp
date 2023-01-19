@@ -2,19 +2,20 @@
 #include "gaussianParticleGenerator.h"
 #include "uniformParticleGenerator.h"
 
-GameManager::GameManager(physx::PxScene* Scene, physx::PxPhysics* Physics)
+ParticleSystem::ParticleSystem(physx::PxScene* Scene, physx::PxPhysics* Physics)
 {
 	scene = Scene;
 	physics = Physics;
 	pFR = new ParticleForceRegistry();
-	gravGen = new GravityForceGenerator({ 0,-9.8,0 });
-	windGen = new WindOfChangeForceGenerator({ 20,0,0 }, 0.55, 0);
+	rFR = new RigidForceRegistry();
+	
+
+	windGen = new WindOfChangeForceGenerator({ 0,-30,0 }, 0.55, 0);//force, k1, k2
 	//windGen->isOn = true;
-	whirl = new WhirlwindOfChangeForceGenerator(7, { 50,50,-50 }, { 6,2,0 });
+	whirl = new WhirlwindOfChangeForceGenerator(7, { 50,50,-50 }, { 6,2,0 });//k, position, velocity
 	//whirl->isOn = true;
 
-	boom = new ExplosionBoomForceGenerator(200, 5, { 0,0,0 }, 2);
-
+	
 
 	createLevels();
 
@@ -23,32 +24,18 @@ GameManager::GameManager(physx::PxScene* Scene, physx::PxPhysics* Physics)
 	//boom->isOn = true;
 }
 
-void GameManager::addParticleGen(/*GeneratorName gn*/)
+void ParticleSystem::addParticleGen()
 {
 	_particle_generators.push_back(std::shared_ptr<ParticleGenerator>(new GaussianParticleGenerator("Gaussian", { 50, 50, -50 }, { -16,150,-27 }, { 15,1,15 }, { 1,1,1 }, 1, GAUSSIAN_BALL)));
-	_particle_generators.push_back(std::shared_ptr<ParticleGenerator>(new UniformParticleGenerator({ 0, 0, 0 }, { 0, 0, -100 })));
-	//_particle_generators.push_back(std::shared_ptr<ParticleGenerator>(new UniformParticleGenerator("Uniform", { 0, 50, 0 }, { 0,10,27 }, 12, GAUSSIAN_BALL)));
-	/*switch (gn)
-	{
-	case GAUSSIAN:
+	
+	_particle_generators.push_back(std::shared_ptr<ParticleGenerator>(new CircleGenerator(15, 10)));
 
-		break;
-	case UNIFORM:
-		break;
-	case FIREWORK:
-		_firework = new Firework({ 0,50,0 }, { 0,10,27 });
-		break;
-	default:
-		break;
-	}*/
 }
 
-void GameManager::update(double t)
+void ParticleSystem::update(double t)
 {
-	//cout << GetCamera()->getDir().x <<" "<< GetCamera()->getDir().y << " " << GetCamera()->getDir().z << endl;
-	//renderLifes();
-	//pLife->setPosition(GetCamera()->getDir());
 	pFR->updateForce(t);
+	rFR->updateForce(t);
 	//act generadores
 	for (auto gen : _particle_generators) {
 		if (gen->isOperative()) {
@@ -64,8 +51,8 @@ void GameManager::update(double t)
 	while (it != _particles.end()) {
 		if ((*it)->particleExists()) {
 			(*it)->update(t);
-			if (gravGen->isOn) pFR->addRegistry(gravGen, *it);
-			if (windGen->isOn) pFR->addRegistry(windGen, *it);
+		/*	if (gravGen->isOn) pFR->addRegistry(gravGen, *it);*/
+			//if (windGen->isOn) pFR->addRegistry(windGen, *it);
 			if (whirl->isOn) pFR->addRegistry(whirl, *it);
 
 
@@ -80,12 +67,30 @@ void GameManager::update(double t)
 			it = _particles.erase(it);
 		}
 	}
+	//wind powerUp
+	if (windOn && windTimer > 0) {
+		windTimer -= t;
+		if (windTimer <= 0) {
+			windGen->changeWind();
+			glClearColor(0.3f, 0.4f, 0.5f, 1.0);
+		}
+
+	}
 	//turn of whirl 
 	if (whirlOn) {
 		whirlTimer -= t;
 		if (whirlTimer <= 0) {
 			whirlOn = false;
 			stopLoseFeedback();
+		}
+	}
+	//turn of bomb exp and give the losefeedback
+	if (bombOn) {
+		bombTimer -= t;
+		if (bombTimer <= 0) {
+			bombOn = false;
+			bombTimer = 150;
+			ActualLifes = 0;
 		}
 	}
 	/*if (lastShoot + 5000 <= t) {*/
@@ -118,7 +123,7 @@ void GameManager::update(double t)
 
 }
 
-std::shared_ptr<ParticleGenerator> GameManager::getParticleGenerator(std::string gn)
+std::shared_ptr<ParticleGenerator> ParticleSystem::getParticleGenerator(std::string gn)
 {
 	for (auto e : _particle_generators)
 	{
@@ -127,7 +132,7 @@ std::shared_ptr<ParticleGenerator> GameManager::getParticleGenerator(std::string
 	return nullptr;
 }
 
-void GameManager::onParticleDeath(Particle* p)
+void ParticleSystem::onParticleDeath(Particle* p)
 {
 	Firework* fk = dynamic_cast<Firework*>(p);
 
@@ -135,124 +140,45 @@ void GameManager::onParticleDeath(Particle* p)
 		auto part = fk->explode();
 		for (auto p : part)
 			_particles.push_back(p);
-		//part.clear();
+
 	}
 }
 
-void GameManager::generateFireworkSystem()
+void ParticleSystem::generateFireworkSystem()
 {
-	//std::shared_ptr<ParticleGenerator>gF(new GaussianParticleGenerator("Firework", { 0, 0, 0 }, { 0,20,0 }, { 0,0,0 }, { 10,10,10 }, 4, FIREWORKS));
 	std::shared_ptr<ParticleGenerator>gF(new CircleGenerator(30, 10));
+	gF->setName("CIRCLEFIREWORKS");
 	auto f = new Firework(Vector3(1000000000, 0, 0), Vector3(0, 30, 0));
 	f->addGenerator(gF); f->numDivisions = 0;
 	f->setTime(1.5);
 	_firework_pool.push_back(f);
 	gF->changeOperative();
 	_particle_generators.push_back(gF);
-	//
-	//std::shared_ptr<ParticleGenerator>gF(new GaussianParticleGenerator("Firework", { 0, 0, 0 }, { 0,20,0 }, { 0,0,0 }, { 10,10,10 }, 4, FIREWORKS));
-	/*f = new Firework(Vector3(1000000000, 0, 0), Vector3(0, 60, 0));
-	f->addGenerator(gF);
-	f->setTime(1.5);
-	_firework_pool.push_back(f);
-	gF->changeOperative();
-	_particle_generators.push_back(gF);*/
 
 }
 
-bool GameManager::isFireworkAlive()
+bool ParticleSystem::isFireworkAlive()
 {
 	return(_firework != nullptr);
 }
-void GameManager::shootFirework(int type)
+void ParticleSystem::shootFirework(int type)
 {
-	auto r = rand() % ((50 - 20) + 1) + 20;
+	auto r = rand() % ((50 - 20) + 1) + 35;
 	auto r2 = rand() % ((-50 - -80) + 1) + -80;
 
-	auto f = _firework_pool[type]->clone();
+	auto f = _firework_pool[0]->clone();
 	f->setPosition({ (float)r,50,(float)r2 });
 	_particles.push_back(f);
 }
-void GameManager::generateSpringDemo()
+void ParticleSystem::generateSpringDemo()
 {
-	////Particle* p1=new Particle()
-	//Particle* p1 = new Particle(MUELLE, { -10,10,0 }, { 0,0,0 });
-	//Particle* p2 = new Particle(MUELLE, { 10,10,0 }, { 0,0,0 });
-
-	//auto f1 = new SpringForceGenerator(10, 10, p2);
-
-	//auto f2 = new SpringForceGenerator(10, 10, p1);
-
-	//pFR->addRegistry(f1, p1);
-	//pFR->addRegistry(f2, p2);
-
-	//_particles.push_back(p1);
-	//_particles.push_back(p2);
-
-
-	 //p3 = new Particle(MUELLE, { 0,30,-50 }, { 0,0,0 });
-
-
-	f3 = new AnchoredSpringFG(20, 10, { 0.0,50.0,-50.0 });
-
-	/*pFR->addRegistry(f3, p3);
-	_particles.push_back(p3);*/
-}
-
-void GameManager::slinky()
-{
-	float y = 60.0f;
-	//Particle* pAnt;
-
-	Particle* p = new Particle(MUELLE, { 0,y,0 }, { 0,0,0 });
-	_particles.push_back(p);
-	y -= 5;
-	Particle* p2 = new Particle(MUELLE, { 0,y,0 }, { 0,0,0 });
-	_particles.push_back(p2);
-	pFR->addRegistry(gravGen, p2);
-	y -= 5;
-	Particle* p3 = new Particle(MUELLE, { 0,y,0 }, { 0,0,0 });
-	_particles.push_back(p3);
-	pFR->addRegistry(gravGen, p3);
-	y -= 5;
-	Particle* p4 = new Particle(MUELLE, { 0,y,0 }, { 0,0,0 });
-	_particles.push_back(p4);
-	pFR->addRegistry(gravGen, p4);
-	y -= 5;
-	Particle* p5 = new Particle(MUELLE, { 0,y,0 }, { 0,0,0 });
-	_particles.push_back(p5);
-	pFR->addRegistry(gravGen, p5);
-	y -= 5;
-	Particle* p6 = new Particle(MUELLE, { 0,y,0 }, { 0,0,0 });
-	_particles.push_back(p6);
-	pFR->addRegistry(gravGen, p6);
-
-	auto f = new SpringForceGenerator(10, 1, p);
-	pFR->addRegistry(f, p2);
-	auto f1 = new SpringForceGenerator(10, 1, p2);
-	pFR->addRegistry(f1, p3);
-	auto f2 = new SpringForceGenerator(20, 1, p3);
-	pFR->addRegistry(f2, p4);
-	auto f3 = new SpringForceGenerator(30, 1, p4);
-	pFR->addRegistry(f3, p5);
-	auto f4 = new SpringForceGenerator(40, 1, p5);
-	pFR->addRegistry(f3, p6);
+	f3 = new AnchoredSpringFG(20, 10, { 0.0,50.0,-50.0 });//k, resting length, pos
 
 }
 
-void GameManager::buoyancy()
-{
-	Particle* p = new Particle(BOX_PART, { 0,21,0 }, { 0,0,0 });
-	p->setMass(50.0);
-	_particles.push_back(p);
 
-	auto f = new BuoyancyForceGenerator(12, 7, 1000);
-	pFR->addRegistry(gravGen, p);
-
-	pFR->addRegistry(f, p);
-}
 //_________
-void GameManager::createScene() {
+void ParticleSystem::createScene() {
 	floor = physics->createRigidStatic(PxTransform({ 50,50,-50 }));
 	PxShape* shape = CreateShape(PxBoxGeometry(30, 0.1, 30));
 	floor->attachShape(*shape);
@@ -260,34 +186,28 @@ void GameManager::createScene() {
 	floorItem = new RenderItem(shape, floor, { 0.9,0.1,0.65,1 });
 	scene->addActor(*floor);
 
-	//StaticBody* s = new StaticBody();
-	//s->body = floor;/* s->_remaining_time = 5*/; s->rendIt = item; 
-	//PxRigidStatic* wall = physics->createRigidStatic(PxTransform({ 10,10,-30 }));
-	////PxRigidDynamic* wall = gPhysics->createRigidDynamic(PxTransform({ 10,30,-30}));
-	//PxShape* shapeWall = CreateShape(PxBoxGeometry(40, 20, 5));
-	//wall->attachShape(*shapeWall);
-	//wall->setName("Floor");
-	//auto item = new RenderItem(shapeWall, wall, { 0.4,0.3,0.7,1 });
-	//scene->addActor(*wall);
+	StaticBody* s = new StaticBody();
+	s->body = floor;/* s->_remaining_time = 5*/; s->rendIt = floorItem;
+	statics.push_back(s);
 
 }
-void GameManager::createLevels() {
+void ParticleSystem::createLevels() {
 	//level1
 	level1 = new Level();
-	level1->numOfFruits = 1;
-	level1->frecuency = 100;
+	level1->numOfFruits = 10;
+	level1->frecuency = 300;
 	//level2
 	level2 = new Level();
-	level2->numOfFruits = 10;
-	level2->frecuency = 250;
+	level2->numOfFruits = 20;
+	level2->frecuency = 200;
 	//level3
 	level3 = new Level();
-	level3->numOfFruits = 25;
+	level3->numOfFruits = 30;
 	level3->frecuency = 100;
 
 	//actualLevel = level1;
 }
-void GameManager::startNextLevel() {
+void ParticleSystem::startNextLevel() {
 	if (isPlayerOnLevel) return;
 	//if no level has been started
 	if (actualLevel == nullptr) {
@@ -296,6 +216,7 @@ void GameManager::startNextLevel() {
 	}
 	else if (actualLevel == level1 /*&& actualLevel->completed*/) {
 		if (hasWon) {
+			actualLevel->fruitsGeneratedInLevel = 0;
 			actualLevel = level2;
 			ActualLifes = 3;
 			hasWon = false;
@@ -303,15 +224,12 @@ void GameManager::startNextLevel() {
 		}
 		else
 		{
-			whirlTimer = 200;
-			hasLost = false;
-			ActualLifes = 3;
-			actualLevel->fruitsGeneratedInLevel = 0;
-			isPlayerOnLevel = true;
+			resetLoseParams();
 		}
 	}
 	else if (actualLevel == level2 /*&& actualLevel->completed*/) {
 		if (hasWon) {
+			actualLevel->fruitsGeneratedInLevel = 0;
 			actualLevel = level3;
 			ActualLifes = 3;
 			hasWon = false;
@@ -319,15 +237,12 @@ void GameManager::startNextLevel() {
 		}
 		else
 		{
-			whirlTimer = 200;
-			hasLost = false;
-			ActualLifes = 3;
-			actualLevel->fruitsGeneratedInLevel = 0;
-			isPlayerOnLevel = true;
+			resetLoseParams();
 		}
 	}
 	else if (actualLevel == level3 /*&& actualLevel->completed*/) {
 		if (hasWon) {
+			actualLevel->fruitsGeneratedInLevel = 0;
 			actualLevel = level1;
 			ActualLifes = 3;
 			hasWon = false;
@@ -335,15 +250,11 @@ void GameManager::startNextLevel() {
 		}
 		else
 		{
-			whirlTimer = 200;
-			hasLost = false;
-			ActualLifes = 3;
-			actualLevel->fruitsGeneratedInLevel = 0;
-			isPlayerOnLevel = true;
+			resetLoseParams();
 		}
 	}
 }
-void GameManager::callStarterSpring() {
+void ParticleSystem::callStarterSpring() {
 	if (isPlayerOnLevel) return;
 	//spring
 	p3 = new Particle(MUELLE, { 0,30,-50 }, { 0,0,0 });
@@ -353,13 +264,13 @@ void GameManager::callStarterSpring() {
 	//call
 	startNextLevel();
 }
-void GameManager::victoryFireworks() {
+void ParticleSystem::victoryFireworks() {
 	for (size_t i = 0; i < 15; i++)
 	{
 		shootFirework(0);
 	}
 }
-void GameManager::shootWeapon()
+void ParticleSystem::shootWeapon()
 {
 	if (!weapons.empty()) return;
 	auto weap = physics->createRigidDynamic(physx::PxTransform(GetCamera()->getEye()));
@@ -378,17 +289,17 @@ void GameManager::shootWeapon()
 
 
 	DynamicBody* s = new DynamicBody();
-	s->body = weap;/* s->_remaining_time = 5*/; s->rendIt = x; s->_alive = true; s->lifeTime = 1;
-	//_bullets.push_back(s);
+	s->body = weap; s->rendIt = x; s->_alive = true; s->lifeTime = 1;
+	
 	weapons.push_back(s);
 
 }
 
-void GameManager::addFruit(double t)
+void ParticleSystem::addFruit(double t)
 {
 	Vector4 col;
 	DynamicBody* s = new DynamicBody();
-	auto random = rand() % 6;
+	auto random = rand() % 8;
 	if (random == 0) {
 		col = { 0,0,0,1.0 };
 		s->isBomb = true;
@@ -409,7 +320,7 @@ void GameManager::addFruit(double t)
 	physx::PxRigidBodyExt::setMassAndUpdateInertia(*fruit, 2.5);
 
 	auto x = new RenderItem(shape, fruit, col);
-	//fruit->setLinearDamping(0.99);
+	
 	fruit->setName("Fruit");
 	scene->addActor(*fruit);
 
@@ -417,11 +328,17 @@ void GameManager::addFruit(double t)
 
 
 	s->body = fruit;/* s->_remaining_time = 5*/; s->rendIt = x; s->_alive = true;
-	//_bullets.push_back(s);
+	s->lifeTime = 25.0;
+	
 	fruits.push_back(s);
+
+	if (windGen->isOn) {
+		rFR->addRegistry(windGen, fruit);
+	}
+
 }
 //Deletes the selected dynamic body 
-void GameManager::deleteDynamicBody(DynamicBody* d, std::string s)
+void ParticleSystem::deleteDynamicBody(DynamicBody* d, std::string s)
 {
 	//if (d->_alive) {
 	if (s == "f") {
@@ -431,7 +348,7 @@ void GameManager::deleteDynamicBody(DynamicBody* d, std::string s)
 
 	else d->body->setGlobalPose({ 2000000,0,0 });
 	d->_alive = false;
-
+	rFR->deleteParticleRegistry(static_cast<PxRigidDynamic*>(d->body));
 	d->body->release();
 	DeregisterRenderItem(d->rendIt);
 	//s->rI->color
@@ -439,42 +356,42 @@ void GameManager::deleteDynamicBody(DynamicBody* d, std::string s)
 	//}
 }
 
-void GameManager::renderLifes()
+void ParticleSystem::renderLifes()
 {
 	display_text = "Lifes: " + std::to_string(ActualLifes);
 	drawText(display_text, 100, 500);
 }
-void GameManager::renderPoints() {
+void ParticleSystem::renderPoints() {
 	points_text = "Points: " + std::to_string(points);
 	drawText(points_text, 600, 500);
 }
-void GameManager::stopLoseFeedback() {
+void ParticleSystem::stopLoseFeedback() {
 	getParticleGenerator("Gaussian")->changeOperative();
 	whirl->changeWhirl();
 	glClearColor(0.3f, 0.4f, 0.5f, 1.0);
 	p3->kill();
-	/*p3 = new Particle(MUELLE, { 0,30,-50 }, { 0,0,0 });*/
-	/*pFR->deleteParticleRegistry(p3);
-	p3->setVelocity({ 0,0,0 });
-	p3->clearForce();
-	p3->setPosition({ 0, 30, -50 });*/
 
 }
 //Checks collisions between fruits and the floor
-void GameManager::collisionsBetweenFruitsAndFloor(double t) {
+void ParticleSystem::collisionsBetweenFruitsAndFloor(double t) {
 
 	auto itFruits = fruits.begin();
 
 	while (itFruits != fruits.end()) {
+		if ((*itFruits)->body->getGlobalPose().p.y < 48) {
+			deleteDynamicBody(*itFruits, "f");
+			itFruits = fruits.erase(itFruits);
+		}
+		else if (physx::PxGeometryQuery::overlap((*itFruits)->rendIt->shape->getGeometry().sphere(), (*itFruits)->body->getGlobalPose(), floorItem->shape->getGeometry().box(), floor->getGlobalPose())) {
 
-		if (physx::PxGeometryQuery::overlap((*itFruits)->rendIt->shape->getGeometry().sphere(), (*itFruits)->body->getGlobalPose(), floorItem->shape->getGeometry().box(), floor->getGlobalPose())) {
-
-			ActualLifes--;
+			if (!(*itFruits)->isBomb)
+				ActualLifes--;
 
 			deleteDynamicBody(*itFruits, "f");
 			itFruits = fruits.erase(itFruits);
 
 		}
+
 		else {
 			++itFruits;
 		}
@@ -483,7 +400,7 @@ void GameManager::collisionsBetweenFruitsAndFloor(double t) {
 }
 
 //Checks collisions between fruits and weapons
-void GameManager::collisionsBetweenFruitsAndWeapons(double t) {
+void ParticleSystem::collisionsBetweenFruitsAndWeapons(double t) {
 	auto itFruits = fruits.begin();
 	auto it2 = weapons.begin();
 
@@ -492,7 +409,17 @@ void GameManager::collisionsBetweenFruitsAndWeapons(double t) {
 			if (physx::PxGeometryQuery::overlap((*it2)->rendIt->shape->getGeometry().sphere(), (*it2)->body->getGlobalPose(), (*itFruits)->rendIt->shape->getGeometry().sphere(), (*itFruits)->body->getGlobalPose())) {
 
 				if ((*itFruits)->isBomb) {
-					ActualLifes = 0;
+					auto model = new Firework((*itFruits)->body->getGlobalPose().p, Vector3(0, 0, 0));
+					getParticleGenerator("CIRCLE")->setParticle(model);
+
+					auto l = getParticleGenerator("CIRCLE")->generateParticles();
+					for (auto p : l) {
+						p->colour({ 1.0,0.0,0.0,1.0 });
+						_particles.push_back(p);
+					}
+					model->setPosition({ 8494,0,0 });
+					bombOn = true;
+					//ActualLifes = 0;
 					deleteDynamicBody(*itFruits, "f");
 					itFruits = fruits.erase(itFruits);
 				}
@@ -517,7 +444,7 @@ void GameManager::collisionsBetweenFruitsAndWeapons(double t) {
 	}
 }
 
-void GameManager::deleteAllFruits()
+void ParticleSystem::deleteAllFruits()
 {
 	auto itFruits = fruits.begin();
 
@@ -528,3 +455,83 @@ void GameManager::deleteAllFruits()
 
 	}
 }
+void ParticleSystem::deleteStatics() {
+	auto it = statics.begin();
+
+	DeregisterRenderItem(floorItem);
+	while (it != statics.end()) {
+		it = statics.erase(it);
+	}
+}
+void ParticleSystem::windPowerUp() {
+	if (!windOn) {
+		windGen->changeWind();
+		windOn = true;
+		glClearColor(0.0f, 0.5f, 0.9f, 1.0);
+	}
+
+}
+void ParticleSystem::resetLoseParams() {
+	whirlTimer = 200;
+	hasLost = false;
+	ActualLifes = 3;
+	actualLevel->fruitsGeneratedInLevel = 0;
+	isPlayerOnLevel = true;
+}
+
+
+
+
+//----NO USADOS----
+//void GameManager::slinky()
+//{
+//	float y = 60.0f;
+//	//Particle* pAnt;
+//
+//	Particle* p = new Particle(MUELLE, { 0,y,0 }, { 0,0,0 });
+//	_particles.push_back(p);
+//	y -= 5;
+//	Particle* p2 = new Particle(MUELLE, { 0,y,0 }, { 0,0,0 });
+//	_particles.push_back(p2);
+//	pFR->addRegistry(gravGen, p2);
+//	y -= 5;
+//	Particle* p3 = new Particle(MUELLE, { 0,y,0 }, { 0,0,0 });
+//	_particles.push_back(p3);
+//	pFR->addRegistry(gravGen, p3);
+//	y -= 5;
+//	Particle* p4 = new Particle(MUELLE, { 0,y,0 }, { 0,0,0 });
+//	_particles.push_back(p4);
+//	pFR->addRegistry(gravGen, p4);
+//	y -= 5;
+//	Particle* p5 = new Particle(MUELLE, { 0,y,0 }, { 0,0,0 });
+//	_particles.push_back(p5);
+//	pFR->addRegistry(gravGen, p5);
+//	y -= 5;
+//	Particle* p6 = new Particle(MUELLE, { 0,y,0 }, { 0,0,0 });
+//	_particles.push_back(p6);
+//	pFR->addRegistry(gravGen, p6);
+//
+//	auto f = new SpringForceGenerator(10, 1, p);
+//	pFR->addRegistry(f, p2);
+//	auto f1 = new SpringForceGenerator(10, 1, p2);
+//	pFR->addRegistry(f1, p3);
+//	auto f2 = new SpringForceGenerator(20, 1, p3);
+//	pFR->addRegistry(f2, p4);
+//	auto f3 = new SpringForceGenerator(30, 1, p4);
+//	pFR->addRegistry(f3, p5);
+//	auto f4 = new SpringForceGenerator(40, 1, p5);
+//	pFR->addRegistry(f3, p6);
+//
+//}
+
+//void GameManager::buoyancy()
+//{
+//	Particle* p = new Particle(BOX_PART, { 0,21,0 }, { 0,0,0 });
+//	p->setMass(50.0);
+//	_particles.push_back(p);
+//
+//	auto f = new BuoyancyForceGenerator(12, 7, 1000);
+//	pFR->addRegistry(gravGen, p);
+//
+//	pFR->addRegistry(f, p);
+//}

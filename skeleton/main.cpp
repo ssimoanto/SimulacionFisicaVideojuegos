@@ -15,10 +15,10 @@
 
 std::string display_text;
 std::string points_text;
-std::string lost_text;
 
 
-int lifes = 3;
+
+//int lifes = 3;
 
 using namespace physx;
 
@@ -37,7 +37,7 @@ PxDefaultCpuDispatcher* gDispatcher = NULL;
 PxScene* gScene = NULL;
 ContactReportCallback gContactReportCallback;
 //Particle* p;
-GameManager* particleSystem;
+ParticleSystem* particleSystem;
 RenderItem* suelo;
 WorldManager* world;
 void updateUI() {
@@ -75,7 +75,7 @@ void initPhysics(bool interactive)
 	gScene = gPhysics->createScene(sceneDesc);
 
 	suelo = new RenderItem(CreateShape(PxBoxGeometry(500, 1, 500)), new PxTransform(-100, -5, -100), { 1,0,1,0.7 });
-	particleSystem = new GameManager(gScene, gPhysics);
+	particleSystem = new ParticleSystem(gScene, gPhysics);
 	//particleSystem->renderPoints();
 	updateUI();
 	particleSystem->generateFireworkSystem();
@@ -83,25 +83,12 @@ void initPhysics(bool interactive)
 	particleSystem->addParticleGen();
 	//particleSystem->addParticleGen(UNIFORM);
 	particleSystem->getParticleGenerator("Gaussian")->changeOperative();
-	particleSystem->getParticleGenerator("Uniform")->changeOperative();
+	/*particleSystem->getParticleGenerator("Uniform")->changeOperative();*/
+	particleSystem->getParticleGenerator("CIRCLE")->changeOperative();
+
 	particleSystem->createScene();
-	//practica 5
-	//PxRigidStatic* floor = gPhysics->createRigidStatic(PxTransform({ 0,0,0 }));
-	//PxShape* shape = CreateShape(PxBoxGeometry(100, 0.1, 100));
-	//floor->attachShape(*shape);
-	//floor->setName("Floor");
-	//auto item = new RenderItem(shape, floor, { 0.9,0.1,0.65,1 });
-	//gScene->addActor(*floor);
-
-
-	//PxRigidStatic* wall = gPhysics->createRigidStatic(PxTransform({ 10,10,-30 }));
-	////PxRigidDynamic* wall = gPhysics->createRigidDynamic(PxTransform({ 10,30,-30}));
-	//PxShape* shapeWall = CreateShape(PxBoxGeometry(40, 20, 5));
-	//wall->attachShape(*shapeWall);
-	//wall->setName("Floor");
-	//item = new RenderItem(shapeWall, wall, { 0.4,0.3,0.7,1 });
-	//gScene->addActor(*wall);
-	world = new WorldManager(gPhysics, gScene);
+	
+	//world = new WorldManager(gPhysics, gScene);
 
 }
 
@@ -117,11 +104,8 @@ void stepPhysics(bool interactive, double t)
 	gScene->fetchResults(true);
 
 	particleSystem->update(t);
-	world->update(t);
+	//world->update(t);
 	updateUI();
-	
-	/* display_text += std::to_string(particleSystem->ActualLifes);
-	 drawText(display_text, 100, 500);*/
 }
 
 // Function to clean data
@@ -150,45 +134,17 @@ void keyPress(unsigned char key, const PxTransform& camera)
 
 	switch (toupper(key))
 	{
-		//case 'B': break;
-		//case ' ':	break;
 	case 'X':
-		//particleSystem->create();
-	   // particleSystem->getParticleGenerator("Uniform")->changeOperative();
 		particleSystem->shootWeapon();
 		break;
-	case 'C':
-		particleSystem->getParticleGenerator("Gaussian")->changeOperative();
+
+	case 'V':
+		particleSystem->windPowerUp();
 		break;
-	/*case 'V':
-		particleSystem->shootFirework(0);
-		break;
-	case 'G':
-		particleSystem->activeGrav();
-		break;*/
-	case 'B':
-		particleSystem->boomNow();
-		break;
-	/*case 'Y':
-		particleSystem->windGen->changeWind();
-		break;*/
-	case 'T':
-		particleSystem->whirl->changeWhirl();
-		break;
+	
 	case 'M': particleSystem->callStarterSpring();
 		break;
-	case 'L': particleSystem->slinky();
-		break;
-	case 'N': particleSystem->buoyancy();
-		break;
-	case 'Q': world->addObject();
-		break;
-		//void changeWhirl() { isOn = !isOn; }
-	case 'Z': world->wind();
-		break;
-		//pruebas fruits
-	case '1': particleSystem->addFruit(0);
-		break;
+
 	default:
 		break;
 	}
@@ -196,12 +152,6 @@ void keyPress(unsigned char key, const PxTransform& camera)
 
 void onCollision(physx::PxActor* actor1, physx::PxActor* actor2)
 {
-	/*PX_UNUSED(actor1);
-	PX_UNUSED(actor2);*/
-	/*if (actor1->getName() == "Weapon" && actor2->getName() == "Fruit") {
-		
-		
-	}*/
 }
 
 
